@@ -50,7 +50,6 @@ export class PblNgridMetaRowComponent extends PblNgridBaseRowComponent<'meta-hea
   set meta(value: PblMetaRowDefinitions) { this._meta = value; } // TODO: remove when removing pblMetaRow
 
   readonly rowType: 'meta-header' | 'meta-footer';
-  readonly element: HTMLElement = undefined!;
   readonly isFooter: boolean;
   readonly gridWidthRow: boolean = false;
   private _meta: PblMetaRowDefinitions;
@@ -64,7 +63,6 @@ export class PblNgridMetaRowComponent extends PblNgridBaseRowComponent<'meta-hea
               private readonly metaRows: PblNgridMetaRowService,
               @Attribute('footer') isFooter: any) {
     super(grid, cdRef, extApi, injector, el);
-    this.element = el.nativeElement;
     this.isFooter = isFooter !== null;
     this.rowType = this.isFooter ? 'meta-footer' : 'meta-header';
   }
