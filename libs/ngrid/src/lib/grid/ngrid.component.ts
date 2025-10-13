@@ -45,9 +45,9 @@ import { EXT_API_TOKEN, PblNgridExtensionApi, PblNgridInternalExtensionApi } fro
 import { PblNgridPluginController, PblNgridPluginContext } from '../ext/plugin-control';
 import { PblNgridRegistryService } from './registry/registry.service';
 import { PblCdkTableComponent } from './pbl-cdk-table/pbl-cdk-table.component';
-import { PblColumn, PblNgridColumnSet,  } from './column/model';
+import { PblColumn, PblNgridColumnSet, } from './column/model';
 import { PblColumnStore, ColumnApi, AutoSizeToFitOptions } from './column/management';
-import { PblNgridCellContext, PblNgridMetaCellContext, PblNgridContextApi, PblNgridRowContext } from './context/index';
+import { PblNgridCellContext, PblNgridMetaCellContext, PblNgridContextApi, PblNgridRowContext, PblRowContext } from './context/index';
 import { PblCdkVirtualScrollViewportComponent } from './features/virtual-scroll/virtual-scroll-viewport.component';
 import { PblNgridMetaRowService } from './meta-rows/meta-row.service';
 
@@ -71,7 +71,7 @@ declare module '../ext/types' {
   selector: 'pbl-ngrid',
   templateUrl: './ngrid.component.html',
   providers: [
-    {provide: PBL_NGRID_COMPONENT, useExisting: PblNgridComponent},
+    { provide: PBL_NGRID_COMPONENT, useExisting: PblNgridComponent },
     PblNgridRegistryService,
     {
       provide: PblNgridPluginController,
@@ -169,7 +169,7 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
     if (value instanceof PblDataSource) {
       this.setDataSource(value);
     } else {
-      this.setDataSource(createDS<T>().onTrigger( () => value || [] ).create());
+      this.setDataSource(createDS<T>().onTrigger(() => value || []).create());
     }
   }
 
@@ -180,7 +180,7 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
     if ((value as any) === '') {
       value = 'pageNumber';
     }
-    if ( value !== this._pagination ) {
+    if (value !== this._pagination) {
       this._pagination = value as any;
       this._extApi.logicaps.pagination();
     }
@@ -202,7 +202,7 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
    */
   @Input() columns: PblNgridColumnSet | PblNgridColumnDefinitionSet;
 
-  @Input() rowClassUpdate: undefined | ( (context: PblNgridRowContext<T>) => ( string | string[] | Set<string> | { [klass: string]: any } ));
+  @Input() rowClassUpdate: undefined | ((context: PblNgridRowContext<T>) => (string | string[] | Set<string> | { [klass: string]: any }));
   @Input() rowClassUpdateFreq: 'item' | 'ngDoCheck' | 'none' = 'item';
 
   rowFocus: 0 | '' = '';
@@ -327,16 +327,16 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
   private _viewport: PblCdkVirtualScrollViewportComponent;
 
   constructor(injector: Injector,
-              vcRef: ViewContainerRef,
-              private elRef: ElementRef<HTMLElement>,
-              private ngZone: NgZone,
-              private cdr: ChangeDetectorRef,
-              private config: PblNgridConfigService,
-              // TODO: Make private in v5
-              /** @deprecated Will be removed in v5 */
-              public registry: PblNgridRegistryService,
-              @Attribute('id') public readonly id: string,
-              @Optional() dir?: Directionality) {
+    vcRef: ViewContainerRef,
+    private elRef: ElementRef<HTMLElement>,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef,
+    private config: PblNgridConfigService,
+    // TODO: Make private in v5
+    /** @deprecated Will be removed in v5 */
+    public registry: PblNgridRegistryService,
+    @Attribute('id') public readonly id: string,
+    @Optional() dir?: Directionality) {
     this._extApi = createApis(this, { config, registry, ngZone, injector, vcRef, elRef, cdRef: cdr, dir });
 
     dir?.change
@@ -370,12 +370,13 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
     this.invalidateColumns();
 
     Object.defineProperty(this, 'isInit', { value: true });
+    (this.isInit as PblNgridComponent['isInit']) = true;
     this._plugin.emitEvent({ source: 'grid', kind: 'onInit' });
 
     this._extApi.logicaps.pagination();
 
     this.contextApi.focusChanged
-      .subscribe( event => {
+      .subscribe(event => {
         if (event.curr) {
           this.rowsApi
             .findDataRowByIdentity(event.curr.rowIdent)
@@ -383,23 +384,25 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
             ?.focus();
         }
       });
+
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    let processColumns = false;
 
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes.focusMode) {
       this.rowFocus = this.focusMode === 'row' ? 0 : '';
       this.cellFocus = this.focusMode === 'cell' ? 0 : '';
     }
 
-    if ( changes.columns && this.isInit ) {
-      processColumns = true;
-    }
+    if (changes.columns) {
+      this.contextApi.clear(true);
 
-    if ( processColumns === true ) {
-      this.invalidateColumns(true);
-      this.ngZone.onStable.pipe(take(1)).subscribe(() => this.rowsApi.syncRows('all', true));
+      this.ds.onRenderedDataChanged.pipe(take(1)).subscribe(() => {
+        this.contextApi.ensureCacheForAllRows(this.ds.renderedData);
+        this.rowsApi.syncRows('all', true);
+
+        this.cdr.detectChanges();
+      });
     }
   }
 
@@ -451,7 +454,7 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
 
     let column: PblColumn;
     if (typeof columnOrAlias === 'string') {
-      column = this._store.visibleColumns.find( c => c.alias ? c.alias === columnOrAlias : (c.sort && c.id === columnOrAlias) );
+      column = this._store.visibleColumns.find(c => c.alias ? c.alias === columnOrAlias : (c.sort && c.id === columnOrAlias));
       if (!column && isDevMode()) {
         console.warn(`Could not find column with alias "${columnOrAlias}".`);
         return;
@@ -488,7 +491,7 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
       if (Array.isArray(columns) && typeof columns[0] === 'string') {
         columnInstances = [];
         for (const colId of columns) {
-          const column = this._store.visibleColumns.find( c => c.alias ? c.alias === colId : (c.id === colId) );
+          const column = this._store.visibleColumns.find(c => c.alias ? c.alias === colId : (c.id === colId));
           if (!column && isDevMode()) {
             console.warn(`Could not find column with alias ${colId} "${colId}".`);
             return;
@@ -533,7 +536,7 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
       // clear the context, new datasource
       this._extApi.contextApi.clear();
 
-      if ( value ) {
+      if (value) {
         if (isDevMode()) {
           value.onError.pipe(unrx(this, value)).subscribe(console.error.bind(console));
         }
@@ -544,7 +547,7 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
         // trigger this method.
         value.onSourceChanging
           .pipe(unrx(this, value))
-          .subscribe( () => {
+          .subscribe(() => {
             if (this.config.get('table').clearContextOnSourceChanging) {
               this._extApi.contextApi.clear();
             }
@@ -553,16 +556,16 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
         // Run CD, scheduled as a micro-task, after each rendering
         value.onRenderDataChanging
           .pipe(
-            filter( ({event}) => !event.isInitial && (event.pagination.changed || event.sort.changed || event.filter.changed)),
+            filter(({ event }) => !event.isInitial && (event.pagination.changed || event.sort.changed || event.filter.changed)),
             // Context between the operations are not supported at the moment
             // Event for client side operations...
             // TODO: can we remove this? we clear the context with `onSourceChanging`
-            tap( () => !this._store.primary && this._extApi.contextApi.clear() ),
-            switchMap( () => value.onRenderedDataChanged.pipe(take(1), mapTo(this.ds.renderLength)) ),
+            tap(() => !this._store.primary && this._extApi.contextApi.clear()),
+            switchMap(() => value.onRenderedDataChanged.pipe(take(1), mapTo(this.ds.renderLength))),
             observeOn(asapScheduler),
             unrx(this, value)
           )
-          .subscribe( previousRenderLength => {
+          .subscribe(previousRenderLength => {
             // If the number of rendered items has changed the grid will update the data and run CD on it.
             // so we only update the rows.
             if (previousRenderLength === this.ds.renderLength) {
@@ -577,12 +580,12 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
         // Handling fallback minimum height.
         value.onRenderedDataChanged
           .pipe(
-            map( () => this.ds.renderLength ),
+            map(() => this.ds.renderLength),
             startWith(null),
             pairwise(),
-            tap( ([prev, curr]) => {
+            tap(([prev, curr]) => {
               const noDataShowing = !!this._extApi.logicaps.noData.viewActive;
-              if ( (curr > 0 && noDataShowing) || (curr === 0 && !noDataShowing) ) {
+              if ((curr > 0 && noDataShowing) || (curr === 0 && !noDataShowing)) {
                 this._extApi.logicaps.noData();
               }
             }),
@@ -687,7 +690,7 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
       rowElement = this._vcRefBeforeContent.length > 0
         ? (this._vcRefBeforeContent.get(0) as EmbeddedViewRef<any>).rootNodes[0]
         : this._vcRefBeforeContent.element.nativeElement
-      ;
+        ;
       rowElement = rowElement.previousElementSibling as HTMLElement;
       rowElement.style.display = '';
       const height = getComputedStyle(rowElement).height;
@@ -712,7 +715,7 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
     return location === 'beforeTable'
       ? this._vcRefBeforeTable
       : location === 'beforeContent' ? this._vcRefBeforeContent : this._vcRefAfterContent
-    ;
+      ;
   }
 
   private resetHeaderRowDefs(): void {

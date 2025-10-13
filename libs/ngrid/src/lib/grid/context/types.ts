@@ -121,6 +121,7 @@ export interface PblNgridRowContext<T = any> extends RowContext<T> {
 
 export interface PblNgridContextApi<T = any> {
 
+  getCacheKeys(): any[]
   /**
    * The reference to currently focused cell context.
    * You can retrieve the actual context or context cell using `findRowInView` and / or `findRowInCache`.
@@ -129,11 +130,11 @@ export interface PblNgridContextApi<T = any> {
    * If this is the case `findRowInView` will return undefined, use `findRowInCache` instead.
    */
   readonly focusedCell: GridDataPoint | undefined;
-    /**
-   * Notify when the focus has changed.
-   *
-   * > Note that the notification is not immediate, it will occur on the closest micro-task after the change.
-   */
+  /**
+ * Notify when the focus has changed.
+ *
+ * > Note that the notification is not immediate, it will occur on the closest micro-task after the change.
+ */
   readonly focusChanged: Observable<PblNgridFocusChangedEvent>;
 
   /**
@@ -149,6 +150,7 @@ export interface PblNgridContextApi<T = any> {
    */
   readonly selectionChanged: Observable<PblNgridSelectionChangedEvent>;
 
+  ensureCacheForAllRows(data: T[]): void;
   /**
    * Focus the provided cell.
    * If a cell is not provided will un-focus (blur) the currently focused cell (if there is one).
@@ -187,11 +189,11 @@ export interface PblNgridContextApi<T = any> {
 
   saveState(context: PblNgridRowContext<T>);
 
-    /**
-   * Try to find a specific row context, using the row identity, in the current view.
-   * If the row is not in the view (or even not in the cache) it will return undefined, otherwise returns the row's context instance (`PblRowContext`)
-   * @param rowIdentity The row's identity. If a specific identity is used, please provide it otherwise provide the index of the row in the datasource.
-   */
+  /**
+ * Try to find a specific row context, using the row identity, in the current view.
+ * If the row is not in the view (or even not in the cache) it will return undefined, otherwise returns the row's context instance (`PblRowContext`)
+ * @param rowIdentity The row's identity. If a specific identity is used, please provide it otherwise provide the index of the row in the datasource.
+ */
   findRowInView(rowIdentity: any): PblRowContext<T> | undefined;
 
   /**
@@ -231,4 +233,11 @@ export interface PblNgridContextApi<T = any> {
   getCell(rowIndex: number, colIndex: number): PblNgridCellContext<T> | undefined;
 
   getDataItem(cell: CellReference): any;
+
+  /**
+ * Rebuilds the cache for all rows in the current data source,
+ * using the current column configuration.
+ * This is useful after columns are added/removed/hidden.
+ */
+  rebuildCacheForAllRows(): void;
 }

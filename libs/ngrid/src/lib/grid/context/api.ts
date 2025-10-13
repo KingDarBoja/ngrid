@@ -40,7 +40,7 @@ export class ContextApi<T = any> {
   readonly focusChanged: Observable<PblNgridFocusChangedEvent> = this.focusChanged$
     .pipe(
       buffer<PblNgridFocusChangedEvent>(this.focusChanged$.pipe(debounceTime(0, asapScheduler))),
-      map( events => ({ prev: events[0]?.prev, curr: events[events.length - 1]?.curr }) )
+      map(events => ({ prev: events[0]?.prev, curr: events[events.length - 1]?.curr }))
     );
 
   /**
@@ -56,7 +56,7 @@ export class ContextApi<T = any> {
    * If this is the case `findRowInView` will return undefined, use `findRowInCache` instead.
    */
   get focusedCell(): GridDataPoint | undefined {
-    return this.activeFocused ? {...this.activeFocused } : undefined;
+    return this.activeFocused ? { ...this.activeFocused } : undefined;
   }
 
   /**
@@ -74,7 +74,7 @@ export class ContextApi<T = any> {
     this.columnApi = extApi.columnApi;
     extApi.events
       .pipe(
-        filter( e => e.kind === 'onDataSource'),
+        filter(e => e.kind === 'onDataSource'),
         take(1),
       ).subscribe(() => {
         Promise.resolve().then(() => {
@@ -85,7 +85,14 @@ export class ContextApi<T = any> {
         extApi.cdkTable.onRenderRows.subscribe(() => this.syncViewAndContext());
       });
 
-    extApi.events.pipe(ON_DESTROY).subscribe( e => this.destroy() );
+    extApi.events.pipe(ON_DESTROY).subscribe(e => this.destroy());
+  }
+
+  public ensureCacheForAllRows(data: T[]): void {
+    for (let i = 0; i < data.length; i++) {
+      const context = new PblRowContext<T>(data[i], i, this.extApi);
+      this.getCreateState(context);
+    }
   }
 
   /**
@@ -115,7 +122,7 @@ export class ContextApi<T = any> {
 
             this.activeFocused = { rowIdent: ref.rowContext.identity, colIndex: ref.index };
 
-            this.selectCells( [ this.activeFocused ], true);
+            this.selectCells([this.activeFocused], true);
 
             this.extApi.grid.rowsApi.syncRows('data', ref.rowContext.index);
           }
@@ -145,6 +152,7 @@ export class ContextApi<T = any> {
     for (const cellRef of cellRefs) {
       const ref = resolveCellReference(cellRef, this as any);
       if (ref instanceof PblCellContext) {
+        console.log('[selectCells] Selecting cell:', ref.rowContext.identity, ref.index);
         if (!ref.selected && !this.extApi.grid.viewport.isScrolling) {
           const rowIdent = ref.rowContext.identity
           const colIndex = ref.index;
@@ -158,10 +166,11 @@ export class ContextApi<T = any> {
           toMarkRendered.add(ref.rowContext.index);
         }
       } else if (ref) {
-        const [ rowState, colIndex ] = ref;
+        const [rowState, colIndex] = ref;
+        console.log('[selectCells] Selecting cell (rowState):', rowState.identity, colIndex);
         if (!rowState.cells[colIndex].selected) {
           this.updateState(rowState.identity, colIndex, { selected: true });
-          this.activeSelected.push( { rowIdent: rowState.identity, colIndex } );
+          this.activeSelected.push({ rowIdent: rowState.identity, colIndex });
           this.extApi.rowsApi.findDataRowByIdentity(rowState.identity)?.cdRef.markForCheck();
         }
       }
@@ -183,7 +192,7 @@ export class ContextApi<T = any> {
     let toUnselect: CellReference[] = this.activeSelected;
     let removeAll = true;
 
-    if(Array.isArray(cellRefs)) {
+    if (Array.isArray(cellRefs)) {
       toUnselect = cellRefs;
       removeAll = false;
     } else {
@@ -208,7 +217,7 @@ export class ContextApi<T = any> {
           toMarkRendered.add(ref.rowContext.index);
         }
       } else if (ref) {
-        const [ rowState, colIndex ] = ref;
+        const [rowState, colIndex] = ref;
         if (rowState.cells[colIndex].selected) {
           this.updateState(rowState.identity, colIndex, { selected: false });
           if (!removeAll) {
@@ -314,15 +323,23 @@ export class ContextApi<T = any> {
       if (typeof rowStateOrCellIndex === 'number') {
         const currentCellState = currentRowState.cells[rowStateOrCellIndex];
         if (currentCellState) {
+          console.log('[updateState] Row:', rowIdentity, 'Col:', rowStateOrCellIndex, 'Before:', { ...currentCellState }, 'Patch:', cellState);
           Object.assign(currentCellState, cellState);
+          console.log('[updateState] Row:', rowIdentity, 'Col:', rowStateOrCellIndex, 'After:', { ...currentCellState });
         }
       } else {
+        console.log('[updateState] Row:', rowIdentity, 'Patch:', rowStateOrCellIndex);
         Object.assign(currentRowState, rowStateOrCellIndex);
       }
       const rowContext = this.findRowInView(rowIdentity);
       if (rowContext) {
+        console.log('[updateState] Hydrating rowContext in view for row:', rowIdentity);
         rowContext.fromState(currentRowState);
+      } else {
+        console.log('[updateState] No rowContext in view for row:', rowIdentity);
       }
+    } else {
+      console.log('[updateState] No currentRowState for row:', rowIdentity);
     }
   }
 
@@ -391,8 +408,21 @@ export class ContextApi<T = any> {
 
   /** @internal */
   _createRowContext(data: T, renderRowIndex: number): PblRowContext<T> {
-    const context = new PblRowContext<T>(data, this.extApi.grid.ds.renderStart + renderRowIndex, this.extApi);
-    context.fromState(this.getCreateState(context));
+    const dsIndex = this.extApi.grid.ds.renderStart + renderRowIndex;
+    const identity = this.getRowIdentity(dsIndex, data);
+    const context = new PblRowContext<T>(data, dsIndex, this.extApi);
+
+    const cachedState = this.cache.get(identity);
+    if (cachedState) {
+      console.log('[_createRowContext] Hydrating from cache for row:', identity);
+      context.fromState(cachedState);
+    } else {
+      console.log('[_createRowContext] Using default state for row:', identity);
+      const defaultState = PblRowContext.defaultState(identity, dsIndex, this.columnApi.columns.length);
+      context.fromState(defaultState);
+      this.cache.set(identity, defaultState);
+    }
+
     this.addToViewCache(renderRowIndex, context);
     return context;
   }
@@ -436,12 +466,35 @@ export class ContextApi<T = any> {
   }
 
   private syncViewAndContext() {
-    this.viewCacheGhost.forEach( ident => {
+    this.viewCacheGhost.forEach(ident => {
       if (!this.findRowInView(ident)) {
         this.cache.get(ident).firstRender = false
       }
     });
-    this.viewCacheGhost = new Set(Array.from(this.viewCache.values()).filter( v => v.firstRender ).map( v => v.identity ));
+    this.viewCacheGhost = new Set(Array.from(this.viewCache.values()).filter(v => v.firstRender).map(v => v.identity));
+  }
+
+  /**
+   * Rebuilds the cache for all rows in the current data source,
+   * using the current column configuration.
+   * This is useful after columns are added/removed/hidden.
+   */
+  public rebuildCacheForAllRows(): void {
+    const ds = this.extApi.grid.ds;
+    const colCount = this.columnApi.columns.length;
+    for (let i = 0; i < ds.renderedData.length; i++) {
+      const rowData = ds.renderedData[i];
+      const identity = this.getRowIdentity(i, rowData);
+      if (identity !== null) {
+        const state = PblRowContext.defaultState(identity, i, colCount);
+        this.cache.set(identity, state);
+      }
+    }
+  }
+
+  /** For debugging: get all row identities currently in the cache */
+  public getCacheKeys(): any[] {
+    return Array.from(this.cache.keys());
   }
 }
 

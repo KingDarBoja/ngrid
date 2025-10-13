@@ -25,12 +25,12 @@ export function handleFocusAndSelection(targetEvents: PblNgridTargetEventsPlugin
       filter(isCellFocusMode),
       filter(isDataCellEvent),
       filter(isMainMouseButtonClick),
-      tap( event => {
+      tap(event => {
         event.source.stopPropagation();
         event.source.preventDefault();
       }),
       tap(handlers.handleMouseDown), // handle mouse down focus
-      switchMap( () => targetEvents.cellEnter.pipe(takeUntil(targetEvents.mouseUp)) ),
+      switchMap(() => targetEvents.cellEnter.pipe(takeUntil(targetEvents.mouseUp))),
       filter(isDataCellEvent),
       filter(isMainMouseButtonClick)
     )
@@ -42,7 +42,11 @@ function createHandlers(targetEvents: PblNgridTargetEventsPlugin) {
   const { contextApi } = targetEvents.grid;
 
   function focusCell(rowIdent: any, colIndex: number, markForCheck?: boolean): void {
-    contextApi.focusCell({ rowIdent, colIndex });
+    // Convert colIndex from visible to absolute if needed
+    const visibleColumns = targetEvents.grid.columnApi.visibleColumns;
+    const column = visibleColumns[colIndex];
+    const absoluteColIndex = targetEvents.grid.columnApi.indexOf(column);
+    contextApi.focusCell({ rowIdent, colIndex: absoluteColIndex });
   }
 
   function handleMouseDown(event: PblNgridDataCellEvent<any, MouseEvent>): void {
@@ -50,9 +54,9 @@ function createHandlers(targetEvents: PblNgridTargetEventsPlugin) {
       handleSelectionChangeByMouseClickAndMove(event);
     } else if (isOsx ? event.source.metaKey : event.source.ctrlKey) {
       if (event.context.selected) {
-        contextApi.unselectCells([ event.context ]);
+        contextApi.unselectCells([event.context]);
       } else {
-        contextApi.selectCells([ event.context ]);
+        contextApi.selectCells([event.context]);
       }
     } else {
       focusCell(event.context.rowContext.identity, event.context.index);
@@ -131,8 +135,8 @@ function createHandlers(targetEvents: PblNgridTargetEventsPlugin) {
     const sourceCellState = contextApi.findRowInCache(rowIdent);
     const [moveH, moveV] = direction;
 
-    const hAdj = [ sourceCellState.cells[colIndex - 1], sourceCellState.cells[colIndex + 1] ];
-    const vAdj = [ contextApi.findRowInCache(rowIdent, -1, true), contextApi.findRowInCache(rowIdent, 1, true) ];
+    const hAdj = [sourceCellState.cells[colIndex - 1], sourceCellState.cells[colIndex + 1]];
+    const vAdj = [contextApi.findRowInCache(rowIdent, -1, true), contextApi.findRowInCache(rowIdent, 1, true)];
 
     let h = (hAdj[0] && hAdj[0].selected ? -1 : 0) + (hAdj[1] && hAdj[1].selected ? 1 : 0);
     let v = (vAdj[0] && vAdj[0].cells[colIndex].selected ? -1 : 0) + (vAdj[1] && vAdj[1].cells[colIndex].selected ? 1 : 0);
@@ -165,7 +169,7 @@ function createHandlers(targetEvents: PblNgridTargetEventsPlugin) {
       }
     }
 
-    const vCells: GridDataPoint[] = [ ];
+    const vCells: GridDataPoint[] = [];
     if (v !== 0) {
       let vContextIdent = rowIdent;
       let vContext = contextApi.findRowInCache(vContextIdent, v, true);
@@ -188,33 +192,64 @@ function createHandlers(targetEvents: PblNgridTargetEventsPlugin) {
     }
 
     const innerCells = getInnerCellsInRect(contextApi, hCells, vCells);
-    contextApi.selectCells([ sourceCellRef, ...hCells, ...vCells, ...innerCells ], true);
+    contextApi.selectCells([sourceCellRef, ...hCells, ...vCells, ...innerCells], true);
   }
 
   function handleSelectionChangeByMouseClickAndMove(event: PblNgridDataCellEvent<any, MouseEvent>) {
     const cellContext = event.context;
-    const activeFocus = contextApi.focusedCell || {
-      rowIdent: cellContext.rowContext.identity,
-      colIndex: cellContext.index,
-    };
+    const visibleColIndex = cellContext.index;
+    const visibleColumns = targetEvents.grid.columnApi.visibleColumns;
+    const column = visibleColumns[visibleColIndex];
+    const absoluteColIndex = targetEvents.grid.columnApi.indexOf(column);
+
+    // Always resolve activeFocus.colIndex to absolute index
+    let activeFocus = contextApi.focusedCell;
+    if (activeFocus) {
+      // Map focusedCell.colIndex (which may be visible) to absolute
+      const focusColumn = visibleColumns[activeFocus.colIndex];
+      const focusAbsoluteColIndex = targetEvents.grid.columnApi.indexOf(focusColumn);
+      activeFocus = {
+        rowIdent: activeFocus.rowIdent,
+        colIndex: focusAbsoluteColIndex,
+      };
+    } else {
+      activeFocus = {
+        rowIdent: cellContext.rowContext.identity,
+        colIndex: absoluteColIndex,
+      };
+    }
+
     const focusedRowState = contextApi.findRowInCache(activeFocus.rowIdent);
+
+    if (!focusedRowState || typeof focusedRowState.dsIndex !== 'number' || !Array.isArray(focusedRowState.cells)) {
+      console.warn('[Selection] Row is not rendered or state is stale', {
+        focusedRowState,
+        activeFocus,
+        cacheKeys: contextApi.getCacheKeys(),
+      });
+      // Row is not rendered or state is stale; skip or handle gracefully
+      return;
+    }
 
     const hCells: GridDataPoint[] = [];
     const vCells: GridDataPoint[] = [];
 
-    for (const i of rangeBetween(activeFocus.colIndex, cellContext.index)) {
+    const targetAbsoluteColIndex = absoluteColIndex;
+    const focusAbsoluteColIndex = activeFocus.colIndex;
+
+    for (const i of rangeBetween(focusAbsoluteColIndex, targetAbsoluteColIndex)) {
       hCells.push({ rowIdent: activeFocus.rowIdent, colIndex: i });
     }
-    hCells.push({ rowIdent: activeFocus.rowIdent, colIndex: cellContext.index });
+    hCells.push({ rowIdent: activeFocus.rowIdent, colIndex: targetAbsoluteColIndex });
 
     const rowHeight = Math.abs(cellContext.rowContext.dsIndex - focusedRowState.dsIndex);
     const dir = focusedRowState.dsIndex > cellContext.rowContext.dsIndex ? -1 : 1;
     for (let i = 1; i <= rowHeight; i++) {
       const state = contextApi.findRowInCache(activeFocus.rowIdent, dir * i, true);
-      vCells.push({ rowIdent: state.identity, colIndex: activeFocus.colIndex });
+      vCells.push({ rowIdent: state.identity, colIndex: focusAbsoluteColIndex });
     }
     const innerCells = getInnerCellsInRect(contextApi, hCells, vCells);
-    contextApi.selectCells([ activeFocus, ...hCells, ...vCells, ...innerCells ], true);
+    contextApi.selectCells([activeFocus, ...hCells, ...vCells, ...innerCells], true);
   }
 
   /**

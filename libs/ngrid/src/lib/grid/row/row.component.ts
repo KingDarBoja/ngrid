@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ComponentRef, ViewChild, ViewContainerRef, ViewEncapsulation, OnDestroy, OnInit, runInInjectionContext } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ComponentRef, ViewChild, ViewContainerRef, ViewEncapsulation, OnDestroy, OnInit, runInInjectionContext, Inject, Optional, ChangeDetectorRef, Injector, ElementRef } from '@angular/core';
 import { CdkRow } from '@angular/cdk/table';
 
 import { StylingDiffer, StylingDifferOptions, unrx } from '@pebula/ngrid/core';
@@ -10,7 +10,8 @@ import { PblNgridBaseRowComponent } from './base-row.component';
 import { PblNgridColumnDef } from '../column/directives/column-def';
 import { rowContextBridge } from './row-to-repeater-bridge';
 import { PblNgridPluginController } from '../../ext/plugin-control';
-import { PblNgridInternalExtensionApi } from '../../ext/grid-ext-api';
+import { EXT_API_TOKEN, PblNgridInternalExtensionApi } from '../../ext/grid-ext-api';
+import { _PblNgridComponent, PBL_NGRID_COMPONENT } from '../../tokens';
 
 export const PBL_NGRID_ROW_TEMPLATE = '<ng-content select=".pbl-ngrid-row-prefix"></ng-content><ng-container #viewRef></ng-container><ng-content select=".pbl-ngrid-row-suffix"></ng-content>';
 
@@ -50,9 +51,15 @@ export class PblNgridRowComponent<T = any> extends PblNgridBaseRowComponent<'dat
   private _rowIndex: number;
   private outOfView = false;
 
-  // constructor(){
-  //   super();
-  // }
+constructor(
+    @Inject(PBL_NGRID_COMPONENT) @Optional() grid: _PblNgridComponent,
+    cdRef: ChangeDetectorRef,
+    @Inject(EXT_API_TOKEN) public extApi: PblNgridInternalExtensionApi<T>,
+    public injector: Injector,
+    el: ElementRef<HTMLElement>
+  ) {
+    super(grid, cdRef, extApi, injector, el);
+  }
 
   ngOnInit(): void {
     super.ngOnInit();
