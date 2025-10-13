@@ -103,11 +103,6 @@ export class PblNgridCellComponent extends PblNgridBaseCell implements DoCheck {
           this.el.classList.remove('pbl-ngrid-cell-selected');
         }
       }
-      console.log('Rendering cell', {
-        rowIdent: this.cellCtx?.rowContext?.identity,
-        colIndex: this.colIndex, // should be absolute
-        selected: this.selected
-      });
     }
   }
 }

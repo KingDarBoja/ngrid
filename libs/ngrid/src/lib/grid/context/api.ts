@@ -152,7 +152,6 @@ export class ContextApi<T = any> {
     for (const cellRef of cellRefs) {
       const ref = resolveCellReference(cellRef, this as any);
       if (ref instanceof PblCellContext) {
-        console.log('[selectCells] Selecting cell:', ref.rowContext.identity, ref.index);
         if (!ref.selected && !this.extApi.grid.viewport.isScrolling) {
           const rowIdent = ref.rowContext.identity
           const colIndex = ref.index;
@@ -167,7 +166,6 @@ export class ContextApi<T = any> {
         }
       } else if (ref) {
         const [rowState, colIndex] = ref;
-        console.log('[selectCells] Selecting cell (rowState):', rowState.identity, colIndex);
         if (!rowState.cells[colIndex].selected) {
           this.updateState(rowState.identity, colIndex, { selected: true });
           this.activeSelected.push({ rowIdent: rowState.identity, colIndex });
@@ -323,23 +321,15 @@ export class ContextApi<T = any> {
       if (typeof rowStateOrCellIndex === 'number') {
         const currentCellState = currentRowState.cells[rowStateOrCellIndex];
         if (currentCellState) {
-          console.log('[updateState] Row:', rowIdentity, 'Col:', rowStateOrCellIndex, 'Before:', { ...currentCellState }, 'Patch:', cellState);
           Object.assign(currentCellState, cellState);
-          console.log('[updateState] Row:', rowIdentity, 'Col:', rowStateOrCellIndex, 'After:', { ...currentCellState });
         }
       } else {
-        console.log('[updateState] Row:', rowIdentity, 'Patch:', rowStateOrCellIndex);
         Object.assign(currentRowState, rowStateOrCellIndex);
       }
       const rowContext = this.findRowInView(rowIdentity);
       if (rowContext) {
-        console.log('[updateState] Hydrating rowContext in view for row:', rowIdentity);
         rowContext.fromState(currentRowState);
-      } else {
-        console.log('[updateState] No rowContext in view for row:', rowIdentity);
       }
-    } else {
-      console.log('[updateState] No currentRowState for row:', rowIdentity);
     }
   }
 
@@ -414,10 +404,8 @@ export class ContextApi<T = any> {
 
     const cachedState = this.cache.get(identity);
     if (cachedState) {
-      console.log('[_createRowContext] Hydrating from cache for row:', identity);
       context.fromState(cachedState);
     } else {
-      console.log('[_createRowContext] Using default state for row:', identity);
       const defaultState = PblRowContext.defaultState(identity, dsIndex, this.columnApi.columns.length);
       context.fromState(defaultState);
       this.cache.set(identity, defaultState);

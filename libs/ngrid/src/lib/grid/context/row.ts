@@ -61,7 +61,6 @@ export class PblRowContext<T> implements PblNgridRowContext<T> {
 
     this.grid = extApi.grid;
     this._rebuildCells(this.extApi.grid.columnApi.columns);
-        console.log('Row context created:', this.identity, this.cells.length);
   }
 
   static defaultState<T = any>(identity: any, dsIndex: number, cellsCount: number): RowContextState<T> {
@@ -84,7 +83,6 @@ export class PblRowContext<T> implements PblNgridRowContext<T> {
   }
 
   getState(): RowContextState<T> {
-    console.log('get State:', this.identity, this.cells.length);
     return {
       identity: this.identity,
       dsIndex: this.dsIndex,
@@ -95,7 +93,6 @@ export class PblRowContext<T> implements PblNgridRowContext<T> {
   }
 
   fromState(state: RowContextState<T>) {
-    console.log('[fromState] Hydrating rowContext', this.identity, 'with state:', state);
     this.firstRender = state.firstRender;
     this.dsIndex = state.dsIndex;
     this.external = state.external;
