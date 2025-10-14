@@ -395,7 +395,7 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
     }
 
     if (changes.columns) {
-      this.contextApi.clear(true);
+      this.invalidateColumns(true);
 
       this.ds.onRenderedDataChanged.pipe(take(1)).subscribe(() => {
         this.contextApi.ensureCacheForAllRows(this.ds.renderedData);
