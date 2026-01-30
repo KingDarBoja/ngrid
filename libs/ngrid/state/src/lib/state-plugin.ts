@@ -8,7 +8,7 @@ import { hasState, saveState, loadState, PblNgridStateLoadOptions, PblNgridState
 
 import { userSessionPref } from './presets';
 
-declare module '@pebula/ngrid/core/lib/configuration/type' {
+declare module '@pebula/ngrid/core' {
   interface PblNgridConfig {
     state?: {
       /** When set to true will enable the state plugin on all table instances by default. */
@@ -24,7 +24,7 @@ declare module '@pebula/ngrid/core/lib/configuration/type' {
   }
 }
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     state?: PblNgridStatePlugin;
   }

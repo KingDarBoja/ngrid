@@ -14,7 +14,7 @@ import { getCellValueTransformed, createTransformedColumn } from './utils';
 
 const DEFAULT_HEADER_COLUMN = { prop: '__transpose__', css: 'pbl-ngrid-header-cell pbl-ngrid-transposed-header-cell' };
 
-declare module '@pebula/ngrid/core/lib/configuration/type' {
+declare module '@pebula/ngrid/core' {
   interface PblNgridConfig {
     transposePlugin?: {
       header?: Partial<PblColumnDefinition>;
@@ -24,7 +24,7 @@ declare module '@pebula/ngrid/core/lib/configuration/type' {
   }
 }
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     transpose?: PblNgridTransposePluginDirective;
   }

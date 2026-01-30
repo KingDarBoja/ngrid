@@ -1,12 +1,8 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "target": "es2020",
     "rootDir": ".",
-    "paths": {
-      "@pebula/ngrid/core/lib/*": ["core/src/lib/*"],
-      "@pebula/ngrid/lib/*": ["src/lib/*"],
-      "@pebula/*": ["dist/@pebula/*"]
-    },
     "outDir": "../../dist/out-tsc",
     "declaration": true,
     "declarationMap": true,
@@ -14,8 +10,15 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "typeRoots": ["../../node_modules/@types"],
-    "types": []
+    "types": [],
+    "paths": {
+      "@pebula/ngrid/core/lib/*": ["core/src/lib/*"],
+      "@pebula/ngrid/lib/*": ["src/lib/*"],
+      "@pebula/*": ["dist/@pebula/*"]
+    }
   },
+  "files": [],
+  "include": ["**/*.ts"],
   "exclude": [
     "src/__test-runners/*.ts",
     "**/*.spec.ts",

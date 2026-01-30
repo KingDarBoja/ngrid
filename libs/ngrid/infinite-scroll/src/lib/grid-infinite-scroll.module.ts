@@ -17,7 +17,7 @@ import { PblNgridInfiniteRowComponent } from './infinite-virtual-row/row';
     exports: [PblNgridInfiniteVirtualRowRefDirective, PblNgridInfiniteRowComponent]
 })
 export class PblNgridInfiniteScrollModule {
-  static readonly NGRID_PLUGIN = ngridPlugin({ id: PLUGIN_KEY, factory: 'create' }, PblNgridInfiniteScrollPlugin);
+  static readonly NGRID_PLUGIN = ngridPlugin({ id: PLUGIN_KEY }, PblNgridInfiniteScrollPlugin);
 
   constructor() {
     PblNgridPluginController.onCreatedSafe(

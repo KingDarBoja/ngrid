@@ -27,7 +27,7 @@ export class PblNgridEditorCellDefDirective<T, P extends keyof PblColumnTypeDefi
   }
 }
 
-declare module '@pebula/ngrid/core/lib/registry/types' {
+declare module '@pebula/ngrid/core' {
   interface PblNgridMultiRegistryMap {
     editorCell?: PblNgridEditorCellDefDirective<any>;
   }

@@ -12,64 +12,11 @@
   },
   "targets": {
     "build": {
-      "executor": "ng-cli-packagr-tasks:build",
+      "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/@pebula/ngrid"],
       "options": {
-        "tsConfig": "libs/ngrid/tsconfig.lib.json",
         "project": "libs/ngrid/ng-package.json",
-        "tasks": {
-          "config": "tools/ng-packagr.transformers/ngrid.transformers.ts",
-          "tsConfig": "tools/tsconfig.json",
-          "data": {
-            "analyseSourcesWorkaround": {},
-            "copyFile": {
-              "assets": [
-                {
-                  "glob": "README.md",
-                  "input": ".",
-                  "output": "dist/@pebula/ngrid"
-                },
-                {
-                  "glob": "LICENSE",
-                  "input": ".",
-                  "output": "dist/@pebula/ngrid"
-                },
-                {
-                  "glob": "*.scss",
-                  "input": "libs/ngrid",
-                  "output": "dist/@pebula/ngrid"
-                },
-                {
-                  "glob": "**/*.scss",
-                  "input": "libs/ngrid/theming",
-                  "output": "dist/@pebula/ngrid/theming"
-                },
-                {
-                  "glob": "*/theming/**/*.scss",
-                  "input": "libs/ngrid",
-                  "output": "dist/@pebula/ngrid"
-                }
-              ]
-            },
-            "sassCompile": {
-              "entries": [
-                {
-                  "glob": "*.scss",
-                  "input": "libs/ngrid/theming/prebuilt",
-                  "output": "dist/@pebula/ngrid/themes"
-                }
-              ]
-            },
-            "schematicsCompile": {
-              "libPath": "./schematics",
-              "compilerOptions": {
-                "sourceMap": false,
-                "inlineSourceMap": true,
-                "inlineSources": true
-              }
-            }
-          }
-        }
+        "tsConfig": "libs/ngrid/tsconfig.ng-packagr.json"
       },
       "configurations": {
         "production": {

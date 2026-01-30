@@ -8,7 +8,7 @@ import { PblDragDrop, PblDragRef } from '../core/index';
 import { PblNgridColumnDragDirective } from './column-drag';
 import { PblNgridColumnDragContainerDirective } from './column-drag-container';
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     columnReorder?: PblNgridColumnReorderPluginDirective;
   }

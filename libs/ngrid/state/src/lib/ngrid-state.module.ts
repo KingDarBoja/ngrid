@@ -21,7 +21,7 @@ import { PblNgridStatePlugin, PblNgridStatePluginDirective, PLUGIN_KEY } from '.
 })
 export class PblNgridStatePluginModule {
 
-  static readonly NGRID_PLUGIN = ngridPlugin({ id: PLUGIN_KEY, factory: 'create', runOnce: registerBuiltInHandlers }, PblNgridStatePlugin);
+  static readonly NGRID_PLUGIN = ngridPlugin({ id: PLUGIN_KEY, runOnce: registerBuiltInHandlers }, PblNgridStatePlugin);
 
   constructor(configService: PblNgridConfigService) {
     PblNgridPluginController.onCreatedSafe(

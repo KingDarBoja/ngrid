@@ -20,7 +20,7 @@ export class PblDragDrop {
   constructor(@Inject(DOCUMENT) protected _document: any,
               protected _ngZone: NgZone,
               protected _viewportRuler: ViewportRuler,
-              protected _dragDropRegistry: DragDropRegistry<DragRef, DropListRef>,
+              protected _dragDropRegistry: DragDropRegistry,
               protected _renderer: Renderer2) {}
 
   /**

@@ -15,7 +15,7 @@ import { PblNgridRowComponent } from '@pebula/ngrid';
 import { PblDetailsRowToggleEvent, PLUGIN_KEY } from './tokens';
 import { DetailRowController } from './detail-row-controller';
 
-declare module '@pebula/ngrid/lib/grid/context/types' {
+declare module '@pebula/ngrid' {
   interface ExternalRowContextState {
     detailRow: boolean;
   }

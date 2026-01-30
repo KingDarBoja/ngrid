@@ -18,19 +18,15 @@ import { Platform } from '@angular/cdk/platform';
 import { _DisposeViewRepeaterStrategy, _ViewRepeater, _VIEW_REPEATER_STRATEGY } from '@angular/cdk/collections';
 import { ViewportRuler } from '@angular/cdk/scrolling';
 import {
-  CDK_TABLE_TEMPLATE,
   CdkTable,
   DataRowOutlet,
   CdkHeaderRowDef,
   CdkFooterRowDef,
   RowContext,
   CDK_TABLE,
-  _COALESCED_STYLE_SCHEDULER,
-  _CoalescedStyleScheduler,
   RenderRow,
   STICKY_POSITIONING_LISTENER,
   StickyPositioningListener,
-  StickyStyler,
 } from '@angular/cdk/table';
 import { Direction, Directionality } from '@angular/cdk/bidi';
 
@@ -53,14 +49,20 @@ import { PblColumn } from '../column/model';
 @Component({
   selector: 'pbl-cdk-table',
   exportAs: 'pblCdkTable',
-  template: CDK_TABLE_TEMPLATE,
+  template: `
+    <ng-content select="caption"></ng-content>
+    <ng-content select="colgroup, col"></ng-content>
+    <ng-container headerRowOutlet></ng-container>
+    <ng-container rowOutlet></ng-container>
+    <ng-container noDataRowOutlet></ng-container>
+    <ng-container footerRowOutlet></ng-container>
+  `,
   host: { // tslint:disable-line: no-host-metadata-property
     'class': 'pbl-cdk-table',
   },
   providers: [
     {provide: CDK_TABLE, useExisting: PblCdkTableComponent},
     {provide: _VIEW_REPEATER_STRATEGY, useClass: PblNgridCachedRowViewRepeaterStrategy},
-    {provide: _COALESCED_STYLE_SCHEDULER, useClass: _CoalescedStyleScheduler},
     // Prevent nested tables from seeing this table's StickyPositioningListener.
     {provide: STICKY_POSITIONING_LISTENER, useValue: null},
   ],
@@ -101,7 +103,8 @@ export class PblCdkTableComponent<T> extends CdkTable<T> implements OnDestroy {
   private beforeRenderRows$: Subject<void>;
   private onRenderRows$: Subject<DataRowOutlet>;
   private _isStickyPending: boolean;
-  private pblStickyStyler: StickyStyler;
+  // TODO: StickyStyler was removed from CDK in Angular 20 - sticky positioning needs to be reimplemented
+  // private pblStickyStyler: StickyStyler;
   private pblStickyColumnStylesNeedReset = false;
 
   constructor(_differs: IterableDiffers,
@@ -115,10 +118,9 @@ export class PblCdkTableComponent<T> extends CdkTable<T> implements OnDestroy {
               @Inject(DOCUMENT) _document: any,
               protected platform: Platform,
               @Inject(_VIEW_REPEATER_STRATEGY) _viewRepeater: _ViewRepeater<T, RenderRow<T>, RowContext<T>>,
-              @Inject(_COALESCED_STYLE_SCHEDULER) _coalescedStyleScheduler: _CoalescedStyleScheduler,
               _viewportRuler: ViewportRuler,
               @Optional() @SkipSelf() @Inject(STICKY_POSITIONING_LISTENER) _stickyPositioningListener?: StickyPositioningListener) {
-    super(_differs, _changeDetectorRef, _elementRef, role, _dir, _document, platform, _viewRepeater, _coalescedStyleScheduler, _viewportRuler, _stickyPositioningListener);
+    super(_differs, _changeDetectorRef, _elementRef, role, _dir, _document, platform, _viewRepeater, _viewportRuler, _stickyPositioningListener);
 
     this.cdRef = _changeDetectorRef;
     extApi.setCdkTable(this);
@@ -126,24 +128,26 @@ export class PblCdkTableComponent<T> extends CdkTable<T> implements OnDestroy {
   }
 
   ngOnInit(): void {
+    // TODO: StickyStyler was removed from CDK in Angular 20
+    // Custom sticky column styling needs to be reimplemented using the new CDK sticky API
     // We implement our own sticky styler because we don't have access to the one at CdkTable (private)
     // We need it because our CdkRowDef classes does not expose columns, it's always an empty array
     // This is to prevent CdkTable from rendering cells, we do that.
     // This is why the styler will not work on columns, cause internall in CdkTable it sees nothing.
-    this.pblStickyStyler = new StickyStyler(this._isNativeHtmlTable,
+    /* this.pblStickyStyler = new StickyStyler(this._isNativeHtmlTable,
                                             this.stickyCssClass,
                                             this._dir?.value || 'ltr',
                                             this._coalescedStyleScheduler,
                                             this.platform.isBrowser,
                                             this.needsPositionStickyOnElement,
-                                            this._stickyPositioningListener);
+                                            this._stickyPositioningListener); */
 
     // This will also run from CdkTable and `updateStickyColumnStyles()` is invoked multiple times
     // but we don't care, we have a window
     (this._dir?.change ?? observableOf<Direction>())
       .pipe(unrx(this))
       .subscribe(value => {
-        this.pblStickyStyler.direction = value;
+        // this.pblStickyStyler.direction = value;
         this.pblStickyColumnStylesNeedReset = true;
         this.updateStickyColumnStyles();
       });
@@ -294,12 +298,14 @@ export class PblCdkTableComponent<T> extends CdkTable<T> implements OnDestroy {
 
     // internal reset, coming from Dir change
     // It will probably get added to CDK ask well, remove when addedd
-    if (this.pblStickyColumnStylesNeedReset) {
+    // TODO: StickyStyler removed in Angular 20 - reimplementation needed
+    /* if (this.pblStickyColumnStylesNeedReset) {
       this.pblStickyStyler.clearStickyPositioning(rows, ['left', 'right']);
       this.pblStickyColumnStylesNeedReset = false;
     }
 
-    this.pblStickyStyler.updateStickyColumns(rows, stickyStartStates, stickyEndStates, true);
+    this.pblStickyStyler.updateStickyColumns(rows, stickyStartStates, stickyEndStates, true); */
+    this.pblStickyColumnStylesNeedReset = false;
 
     // Reset the dirty state of the sticky input change since it has been used.
     this.extApi.columnApi.columns.forEach(c => c.columnDef?.resetStickyChanged());

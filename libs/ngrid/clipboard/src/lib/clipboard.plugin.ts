@@ -6,7 +6,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { unrx } from '@pebula/ngrid/core';
 import { PblNgridComponent, PblNgridPluginController, PblNgridConfigService } from '@pebula/ngrid';
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     clipboard?: PblNgridClipboardPlugin;
   }
@@ -15,7 +15,7 @@ declare module '@pebula/ngrid/lib/ext/types' {
   }
 }
 
-declare module '@pebula/ngrid/core/lib/configuration/type' {
+declare module '@pebula/ngrid/core' {
   interface PblNgridConfig {
     clipboard?: {
       /** When set to true will enable the clipboard plugin on all grid instances by default. */

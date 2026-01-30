@@ -21,7 +21,7 @@ import { DragDropConfig, DragDropRegistry, CDK_DRAG_CONFIG } from '@angular/cdk/
 import { PblNgridComponent, PblColumn, PblNgridMetaCellContext, isPblColumn, PblNgridPluginController, PblNgridExtensionApi } from '@pebula/ngrid';
 import { toggleNativeDragInteractions } from './cdk-encapsulated-code';
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     columnResize?: PblNgridDragResizeComponent;
   }
@@ -87,7 +87,7 @@ export class PblNgridDragResizeComponent implements AfterViewInit, OnDestroy {
   constructor(public element: ElementRef<HTMLElement>,
               private _ngZone: NgZone,
               private _viewportRuler: ViewportRuler,
-              private _dragDropRegistry: DragDropRegistry<PblNgridDragResizeComponent, any>,
+              private _dragDropRegistry: DragDropRegistry,
               @Optional() @Inject(CDK_DRAG_CONFIG) private _config: DragDropConfig) {
     this._config = {
       dragStartThreshold: _config && _config.dragStartThreshold != null ? _config.dragStartThreshold : 5,

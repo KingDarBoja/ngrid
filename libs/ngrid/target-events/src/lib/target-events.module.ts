@@ -13,7 +13,7 @@ import { PblNgridCellEditDirective } from './target-events/cell-edit.directive';
 })
 export class PblNgridTargetEventsModule {
 
-  static readonly NGRID_PLUGIN = ngridPlugin({ id: PLUGIN_KEY, factory: 'create', runOnce }, PblNgridTargetEventsPlugin );
+  static readonly NGRID_PLUGIN = ngridPlugin({ id: PLUGIN_KEY, runOnce }, PblNgridTargetEventsPlugin );
 
   constructor(configService: PblNgridConfigService) {
     PblNgridPluginController.onCreatedSafe(

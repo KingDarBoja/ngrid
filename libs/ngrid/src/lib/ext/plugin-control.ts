@@ -1,6 +1,6 @@
 import { Observable, of, Subject } from 'rxjs';
-import { mapTo } from 'rxjs/operators';
-import { InjectFlags, Injector } from '@angular/core';
+import { map } from 'rxjs/operators';
+import { Injector, InjectOptions } from '@angular/core';
 
 import { PblNgridEvents, ON_INIT, PblNgridEventEmitter } from '@pebula/ngrid/core';
 import { _PblNgridComponent } from '../tokens';
@@ -122,7 +122,7 @@ export class PblNgridPluginController<T = any> {
    * In other words, if you get false, it means you called this method when the grid was already initialized.
    */
   onInit() {
-    return this.grid.isInit ? of(false) : this.events.pipe(ON_INIT, mapTo(true));
+    return this.grid.isInit ? of(false) : this.events.pipe(ON_INIT, map(() => true));
   }
 
   hasPlugin<P extends keyof PblNgridPluginExtension>(name: P): boolean {
@@ -163,7 +163,7 @@ export class PblNgridPluginController<T = any> {
    * we will use `hasAncestor(MyParentModule)`
    */
   hasAncestor(token: any) {
-    return !!this.injector.get(token, null, InjectFlags.Optional);
+    return !!this.injector.get(token, null, { optional: true } as InjectOptions);
   }
 
   createPlugin<P extends keyof PblNgridPluginExtensionFactories>(name: P): PblNgridPluginExtension[P];

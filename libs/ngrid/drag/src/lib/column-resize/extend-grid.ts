@@ -1,13 +1,13 @@
 import { PblColumn } from '@pebula/ngrid';
 
-declare module '@pebula/ngrid/lib/grid/column/model/column' {
+declare module '@pebula/ngrid' {
   interface PblColumn {
     resize: boolean;
   }
 }
 
 
-declare module '@pebula/ngrid/core/lib/models/column' {
+declare module '@pebula/ngrid/core' {
   interface PblColumnDefinition {
     resize?: boolean;
   }

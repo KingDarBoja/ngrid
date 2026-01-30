@@ -16,7 +16,7 @@ import { PblNgridOverlayPanelComponentExtension } from './component-registry-ext
 import { PblNgridOverlayPanelRef } from './overlay-panel-ref';
 import { PblNgridOverlayPanelContext } from './overlay-panel-def';
 
-declare module '@pebula/ngrid/core/lib/registry/types' {
+declare module '@pebula/ngrid/core' {
   interface PblNgridMultiRegistryMap {
     overlayPanels?:
       | PblNgridMultiTemplateRegistry<any, 'overlayPanels'>

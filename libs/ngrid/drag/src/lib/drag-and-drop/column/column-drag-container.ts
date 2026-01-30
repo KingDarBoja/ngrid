@@ -8,7 +8,7 @@ import { COLUMN, PblNgridComponent } from '@pebula/ngrid';
 import { CdkLazyDropList, PblDragDrop } from '../core/index';
 import { patchDropListRef } from './column-drop-list-ref';
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     columnDrag?: PblNgridColumnDragContainerDirective;
   }

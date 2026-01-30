@@ -41,7 +41,7 @@ export class PblNgridHeaderCellDefDirective<T> extends PblNgridBaseCellDef<PblNg
   }
 }
 
-declare module '@pebula/ngrid/core/lib/registry/types' {
+declare module '@pebula/ngrid/core' {
   interface PblNgridMultiRegistryMap {
     headerCell?: PblNgridHeaderCellDefDirective<any>;
   }

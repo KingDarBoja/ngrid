@@ -66,6 +66,7 @@ export {
   PblNgridFocusChangedEvent, PblNgridSelectionChangedEvent,
   PblNgridMetaCellContext, PblNgridCellContext, PblNgridRowContext, PblRowContext, PblNgridContextApi,
   CellReference, GridDataPoint,
+  ExternalRowContextState, ExternalCellContextState,
 } from './lib/grid/index';
 
 export { PblNgridPlugin, PblNgridPluginExtension } from './lib/ext/types';

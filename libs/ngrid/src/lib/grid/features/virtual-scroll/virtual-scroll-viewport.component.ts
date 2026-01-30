@@ -43,7 +43,7 @@ import { RowIntersectionTracker } from './row-intersection';
 import { resolveScrollStrategy } from './utils';
 import { VirtualScrollHightPaging } from './virtual-scroll-height-paging';
 
-declare module '@pebula/ngrid/core/lib/configuration/type' {
+declare module '@pebula/ngrid/core' {
   interface PblNgridConfig {
     virtualScroll?: {
       wheelMode?: PblNgridBaseVirtualScrollDirective['wheelMode'];
