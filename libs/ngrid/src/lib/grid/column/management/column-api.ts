@@ -271,7 +271,7 @@ export class ColumnApi<T> {
     const cells = columnDef.queryCellElements();
     for (let i = 0, len = cells.length; i < len; i++) {
       const parentRow = this.extApi.rowsApi.findRowByElement(cells[i].parentElement);
-      if (parentRow.rowType === 'header' && (parentRow as unknown as PblNgridColumnRowComponent).gridWidthRow) {
+      if (parentRow?.rowType === 'header' && (parentRow as unknown as PblNgridColumnRowComponent).gridWidthRow) {
         cells.splice(i, 1);
         break;
       }
