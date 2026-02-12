@@ -34,7 +34,6 @@ import { unrx } from '@pebula/ngrid/core';
 import { PBL_NGRID_COMPONENT, _PblNgridComponent } from '../../tokens';
 import { EXT_API_TOKEN, PblNgridInternalExtensionApi } from '../../ext/grid-ext-api';
 
-import { PblNgridDisposedRowViewRepeaterStrategy } from './ngrid-disposed-row-view-repeater-strategy';
 import { PblNgridCachedRowViewRepeaterStrategy } from './ngrid-cached-row-view-repeater-strategy';
 import { PblNgridColumnDef } from '../column/directives';
 import { PblColumn } from '../column/model';
@@ -103,9 +102,8 @@ export class PblCdkTableComponent<T> extends CdkTable<T> implements OnDestroy {
   private beforeRenderRows$: Subject<void>;
   private onRenderRows$: Subject<DataRowOutlet>;
   private _isStickyPending: boolean;
-  // TODO: StickyStyler was removed from CDK in Angular 20 - sticky positioning needs to be reimplemented
-  // private pblStickyStyler: StickyStyler;
   private pblStickyColumnStylesNeedReset = false;
+  private _currentDirection: Direction = 'ltr';
 
   constructor(_differs: IterableDiffers,
               _changeDetectorRef: ChangeDetectorRef,
@@ -128,32 +126,20 @@ export class PblCdkTableComponent<T> extends CdkTable<T> implements OnDestroy {
   }
 
   ngOnInit(): void {
-    // TODO: StickyStyler was removed from CDK in Angular 20
-    // Custom sticky column styling needs to be reimplemented using the new CDK sticky API
-    // We implement our own sticky styler because we don't have access to the one at CdkTable (private)
-    // We need it because our CdkRowDef classes does not expose columns, it's always an empty array
-    // This is to prevent CdkTable from rendering cells, we do that.
-    // This is why the styler will not work on columns, cause internall in CdkTable it sees nothing.
-    /* this.pblStickyStyler = new StickyStyler(this._isNativeHtmlTable,
-                                            this.stickyCssClass,
-                                            this._dir?.value || 'ltr',
-                                            this._coalescedStyleScheduler,
-                                            this.platform.isBrowser,
-                                            this.needsPositionStickyOnElement,
-                                            this._stickyPositioningListener); */
+    // Initialize the current direction
+    this._currentDirection = this._dir?.value || 'ltr';
 
-    // This will also run from CdkTable and `updateStickyColumnStyles()` is invoked multiple times
-    // but we don't care, we have a window
+    // Track direction changes and reset sticky column styles
     (this._dir?.change ?? observableOf<Direction>())
       .pipe(unrx(this))
       .subscribe(value => {
-        // this.pblStickyStyler.direction = value;
+        this._currentDirection = value;
         this.pblStickyColumnStylesNeedReset = true;
         this.updateStickyColumnStyles();
       });
 
     // It's imperative we register to dir changes before super.ngOnInit because it register there as well
-    // and it will come first and make sticky state pending, cancelling our pblStickyStyler.
+    // and it will come first and make sticky state pending, cancelling any style updates.
     super.ngOnInit();
   }
 
@@ -256,21 +242,26 @@ export class PblCdkTableComponent<T> extends CdkTable<T> implements OnDestroy {
     let stickyActive = false;
     const stickyStartStates: boolean[] = [];
     const stickyEndStates: boolean[] = [];
-    for (const c of this.extApi.columnApi.visibleColumns)
-    {
+    const columnWidths: number[] = [];
+
+    // Collect sticky states and column widths
+    for (const c of this.extApi.columnApi.visibleColumns) {
       const sticky = c.columnDef?.sticky;
       const stickyEnd = c.columnDef?.stickyEnd;
 
       stickyStartStates.push(!!sticky);
       stickyEndStates.push(!!stickyEnd);
 
+      // Get column width - default to auto if not available
+      const width = c.width;
+      columnWidths.push(width ? (typeof width === 'number' ? width : parseInt(width as string, 10)) : undefined);
+
       if (!stickyActive && (sticky || stickyEnd)) {
         stickyActive = true;
       }
     }
 
-    if (stickyActive != this._stickyActive)
-    {
+    if (stickyActive != this._stickyActive) {
       if (this._stickyActive = stickyActive) {
         this.grid.addClass("pbl-ngrid-sticky-active");
       } else {
@@ -290,25 +281,143 @@ export class PblCdkTableComponent<T> extends CdkTable<T> implements OnDestroy {
 
     if (!this.pblStickyColumnStylesNeedReset) {
       const stickyCheckReducer = (acc, d: PblNgridColumnDef<PblColumn>) => {
-          return acc || (d?.hasStickyChanged() ?? false);
+        return acc || (d?.hasStickyChanged() ?? false);
       };
 
-      this.pblStickyColumnStylesNeedReset = this.extApi.columnApi.columns.map(c => c.columnDef).reduce(stickyCheckReducer, false);
+      this.pblStickyColumnStylesNeedReset = this.extApi.columnApi.columns
+        .map(c => c.columnDef)
+        .reduce(stickyCheckReducer, false);
     }
 
-    // internal reset, coming from Dir change
-    // It will probably get added to CDK ask well, remove when addedd
-    // TODO: StickyStyler removed in Angular 20 - reimplementation needed
-    /* if (this.pblStickyColumnStylesNeedReset) {
-      this.pblStickyStyler.clearStickyPositioning(rows, ['left', 'right']);
+    // Clear sticky positioning if needed
+    if (this.pblStickyColumnStylesNeedReset) {
+      this._clearStickyPositioning(rows);
       this.pblStickyColumnStylesNeedReset = false;
     }
 
-    this.pblStickyStyler.updateStickyColumns(rows, stickyStartStates, stickyEndStates, true); */
-    this.pblStickyColumnStylesNeedReset = false;
+    // Apply sticky positioning using our custom implementation
+    this._updateStickyColumns(rows, stickyStartStates, stickyEndStates, columnWidths);
 
     // Reset the dirty state of the sticky input change since it has been used.
     this.extApi.columnApi.columns.forEach(c => c.columnDef?.resetStickyChanged());
   }
 
+  /**
+   * Clears all sticky positioning styles from the given rows and their cells.
+   */
+  private _clearStickyPositioning(rows: HTMLElement[]): void {
+    for (const row of rows) {
+      const cells = Array.from(row.querySelectorAll('[role="gridcell"], [role="columnheader"], th, td')) as HTMLElement[];
+      for (const cell of cells) {
+        cell.classList.remove('pbl-table-sticky');
+        cell.style.position = '';
+        cell.style.top = '';
+        cell.style.left = '';
+        cell.style.right = '';
+        cell.style.zIndex = '';
+      }
+    }
+  }
+
+  /**
+   * Applies sticky positioning to columns in the given rows.
+   * This is a custom implementation to replace the removed StickyStyler from Angular CDK 20.
+   */
+  private _updateStickyColumns(
+    rows: HTMLElement[],
+    stickyStartStates: boolean[],
+    stickyEndStates: boolean[],
+    columnWidths: number[]
+  ): void {
+    if (rows.length === 0 || stickyStartStates.length === 0) {
+      return;
+    }
+
+    const isRtl = this._currentDirection === 'rtl';
+
+    // Process each row
+    for (const row of rows) {
+      const cells = Array.from(row.querySelectorAll('[role="gridcell"], [role="columnheader"], th, td')) as HTMLElement[];
+
+      // Calculate cumulative offsets for sticky start columns
+      let stickyStartOffset = 0;
+      for (let i = 0; i < cells.length && i < stickyStartStates.length; i++) {
+        if (stickyStartStates[i]) {
+          this._setStickyStyle(cells[i], stickyStartOffset, 'start', isRtl);
+
+          const cell = cells[i];
+          cell?.classList.add('pbl-table-sticky');
+
+          // Get the actual rendered width including borders but excluding padding
+          const cellRect = cell.getBoundingClientRect();
+          const computedStyle = window.getComputedStyle(cell);
+          const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
+          const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
+          const borderLeft = parseFloat(computedStyle.borderLeftWidth) || 0;
+          const borderRight = parseFloat(computedStyle.borderRightWidth) || 0;
+
+          // Content width = total width - padding - border
+          const contentWidth = cellRect.width - paddingLeft - paddingRight - borderLeft - borderRight;
+          const totalCellWidth = cellRect.width;
+
+          // Add current cell's total width to offset for next sticky column
+          if (totalCellWidth) {
+            stickyStartOffset += totalCellWidth;
+          }
+        } else {
+          // Stop at first non-sticky column from the start
+          break;
+        }
+      }
+
+      // Calculate cumulative offsets for sticky end columns (from right to left)
+      let stickyEndOffset = 0;
+      for (let i = cells.length - 1; i >= 0; i--) {
+        if (i < stickyEndStates.length && stickyEndStates[i]) {
+          this._setStickyStyle(cells[i], stickyEndOffset, 'end', isRtl);
+
+          const cell = cells[i];
+          cell?.classList.add('pbl-table-sticky');
+
+          // Get the actual rendered width
+          const cellRect = cell.getBoundingClientRect();
+          const totalCellWidth = cellRect.width;
+
+          // Add current cell's total width to offset for next sticky column
+          if (totalCellWidth) {
+            stickyEndOffset += totalCellWidth;
+          }
+        } else {
+          // Stop at first non-sticky column from the end
+          break;
+        }
+      }
+    }
+  }
+
+  /**
+   * Applies sticky positioning style to a single cell.
+   */
+  private _setStickyStyle(
+    element: HTMLElement,
+    offset: number,
+    position: 'start' | 'end',
+    isRtl: boolean
+  ): void {
+    element.style.position = 'sticky';
+    element.style.top = '0';
+
+    let zIndex = '10';
+    let cssProperty: string;
+
+    if (position === 'start') {
+      cssProperty = isRtl ? 'right' : 'left';
+      zIndex = '1';
+    } else {
+      cssProperty = isRtl ? 'left' : 'right';
+    }
+
+    element.style.setProperty(cssProperty, offset + 'px');
+    element.style.zIndex = zIndex;
+  }
 }
