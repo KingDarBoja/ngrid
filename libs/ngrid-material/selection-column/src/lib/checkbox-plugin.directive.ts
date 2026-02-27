@@ -5,7 +5,7 @@ import { PblNgridComponent, PblNgridPluginController } from '@pebula/ngrid';
 
 import { PblNgridCheckboxComponent } from './table-checkbox.component';
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     matCheckboxSelection?: PblNgridMatCheckboxSelectionDirective;
   }

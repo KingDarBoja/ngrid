@@ -15,7 +15,7 @@ import { PblNgridCellTooltipDirective, PLUGIN_KEY } from './cell-tooltip.directi
   exports: [ PblNgridCellTooltipDirective, MatTooltipModule ],
 })
 export class PblNgridCellTooltipModule {
-  static readonly NGRID_PLUGIN = ngridPlugin({ id: PLUGIN_KEY, factory: 'create' }, PblNgridCellTooltipDirective);
+  static readonly NGRID_PLUGIN = ngridPlugin({ id: PLUGIN_KEY }, PblNgridCellTooltipDirective);
 
   constructor(@Optional() @SkipSelf() parentModule: PblNgridCellTooltipModule,
               configService: PblNgridConfigService) {

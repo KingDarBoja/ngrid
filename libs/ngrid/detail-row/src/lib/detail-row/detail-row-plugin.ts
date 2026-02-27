@@ -7,7 +7,7 @@ import { PblNgridDetailRowComponent } from './row';
 import { PblNgridDetailRowParentRefDirective } from './directives';
 import { DetailRowController } from './detail-row-controller';
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     detailRow?: PblNgridDetailRowPluginDirective<any>;
   }

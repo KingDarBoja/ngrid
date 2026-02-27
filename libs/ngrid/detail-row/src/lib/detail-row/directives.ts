@@ -10,7 +10,7 @@ import {
 
 import { PblNgridRegistryService, PblNgridSingleTemplateRegistry, PblNgridRowContext, PblNgridRowDef } from '@pebula/ngrid';
 
-declare module '@pebula/ngrid/core/lib/registry/types' {
+declare module '@pebula/ngrid/core' {
   interface PblNgridSingleRegistryMap {
     detailRowParent?: PblNgridDetailRowParentRefDirective<any>;
     detailRow?: PblNgridDetailRowDefDirective;

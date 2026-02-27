@@ -8,7 +8,7 @@ import * as Events from './events';
 import { matrixRowFromRow, isRowContainer, findCellRenderIndex, findParentCell } from './utils';
 import { handleFocusAndSelection } from './focus-and-selection';
 
-declare module '@pebula/ngrid/core/lib/configuration/type' {
+declare module '@pebula/ngrid/core' {
   interface PblNgridConfig {
     targetEvents?: {
       /** When set to true will enable the target events plugin on all table instances by default. */
@@ -17,7 +17,7 @@ declare module '@pebula/ngrid/core/lib/configuration/type' {
   }
 }
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     targetEvents?: PblNgridTargetEventsPlugin;
   }

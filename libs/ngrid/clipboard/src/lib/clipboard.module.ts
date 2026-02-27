@@ -13,7 +13,7 @@ import { PLUGIN_KEY, PblNgridClipboardPlugin } from './clipboard.plugin';
 })
 export class PblNgridClipboardPluginModule {
 
-  static readonly NGRID_PLUGIN = ngridPlugin({ id: PLUGIN_KEY, factory: 'create' }, PblNgridClipboardPlugin);
+  static readonly NGRID_PLUGIN = ngridPlugin({ id: PLUGIN_KEY }, PblNgridClipboardPlugin);
 
   constructor(configService: PblNgridConfigService) {
     PblNgridPluginController.onCreatedSafe(

@@ -5,7 +5,7 @@ import { coerceBooleanProperty, BooleanInput } from '@angular/cdk/coercion';
 import { unrx } from '@pebula/ngrid/core';
 import { PblNgridComponent, PblNgridPluginController } from '@pebula/ngrid';
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     blockUi?: { blockUi: BooleanInput | 'auto' | Observable<boolean> };
   }

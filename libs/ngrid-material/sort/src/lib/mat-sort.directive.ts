@@ -4,7 +4,7 @@ import { Sort, MatSort, MatSortHeader, SortDirection } from '@angular/material/s
 import { ON_INVALIDATE_HEADERS, unrx } from '@pebula/ngrid/core';
 import { PblNgridComponent, PblNgridPluginController, PblNgridSortDefinition, PblDataSource } from '@pebula/ngrid';
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     matSort?: PblNgridMatSortDirective;
   }

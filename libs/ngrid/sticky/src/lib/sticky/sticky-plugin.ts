@@ -4,7 +4,7 @@ import { ON_INVALIDATE_HEADERS, ON_RESIZE_ROW } from '@pebula/ngrid/core';
 import { PblNgridComponent, PblNgridPluginController } from '@pebula/ngrid';
 
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     sticky?: PblNgridStickyPluginDirective;
   }

@@ -7,50 +7,10 @@
   "prefix": "pbl",
   "targets": {
     "build": {
-      "executor": "ng-cli-packagr-tasks:build",
+      "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/@pebula/ngrid-material"],
       "options": {
-        "tsConfig": "libs/ngrid-material/tsconfig.lib.json",
-        "project": "libs/ngrid-material/ng-package.json",
-        "tasks": {
-          "config": "tools/ng-packagr.transformers/ngrid-material.transformers.ts",
-          "tsConfig": "tools/tsconfig.json",
-          "data": {
-            "copyFile": {
-              "assets": [
-                {
-                  "glob": "README.md",
-                  "input": ".",
-                  "output": "dist/@pebula/ngrid-material"
-                },
-                {
-                  "glob": "*.scss",
-                  "input": "libs/ngrid-material",
-                  "output": "dist/@pebula/ngrid-material"
-                },
-                {
-                  "glob": "**/*.scss",
-                  "input": "libs/ngrid-material/theming",
-                  "output": "dist/@pebula/ngrid-material/theming"
-                },
-                {
-                  "glob": "*/theming/**/*.scss",
-                  "input": "libs/ngrid-material",
-                  "output": "dist/@pebula/ngrid-material"
-                }
-              ]
-            },
-            "sassCompile": {
-              "entries": [
-                {
-                  "glob": "*.scss",
-                  "input": "libs/ngrid-material/theming/prebuilt",
-                  "output": "dist/@pebula/ngrid-material/themes"
-                }
-              ]
-            }
-          }
-        }
+        "project": "libs/ngrid-material/ng-package.json"
       },
       "configurations": {
         "production": {

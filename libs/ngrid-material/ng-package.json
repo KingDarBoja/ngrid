@@ -3,5 +3,12 @@
   "dest": "../../dist/@pebula/ngrid-material",
   "lib": {
     "entryFile": "src/index.ts"
-  }
+  },
+  "assets": [
+    "README.md",
+    "LICENSE",
+    "*.scss",
+    "theming/**/*.scss",
+    "*/theming/**/*.scss"
+  ]
 }

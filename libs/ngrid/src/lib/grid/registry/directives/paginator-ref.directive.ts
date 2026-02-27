@@ -13,7 +13,7 @@ export class PblNgridPaginatorRefDirective extends PblNgridSingleTemplateRegistr
   constructor(tRef: TemplateRef<{ $implicit: _PblNgridComponent<any> }>, registry: PblNgridRegistryService) { super(tRef, registry); }
 }
 
-declare module '@pebula/ngrid/core/lib/registry/types' {
+declare module '@pebula/ngrid/core' {
   interface PblNgridSingleRegistryMap {
     paginator?: PblNgridPaginatorRefDirective;
   }

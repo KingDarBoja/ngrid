@@ -42,7 +42,7 @@ export class PblNgridCellDefDirective<T, P extends keyof PblColumnTypeDefinition
   }
 }
 
-declare module '@pebula/ngrid/core/lib/registry/types' {
+declare module '@pebula/ngrid/core' {
   interface PblNgridMultiRegistryMap {
     tableCell?: PblNgridCellDefDirective<any>;
   }

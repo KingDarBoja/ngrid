@@ -8,7 +8,7 @@ import { PblInfiniteScrollDataSource } from './infinite-scroll-data-source/infin
 import { INFINITE_SCROLL_DEFFERED_ROW } from './infinite-scroll-data-source/infinite-scroll-deffered-row';
 import { PblNgridDefaultInfiniteVirtualRowComponent } from './default-infinite-virtual-row/default-infinite-virtual-row.component';
 
-declare module '@pebula/ngrid/lib/ext/types' {
+declare module '@pebula/ngrid' {
   interface PblNgridPluginExtension {
     infiniteScroll?: PblNgridInfiniteScrollPlugin;
   }
