@@ -1,10 +1,8 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule, makeStateKey } from '@angular/platform-browser';
+import { makeStateKey, NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-import { FlexModule } from '@angular/flex-layout/flex';
-import { ExtendedModule } from '@angular/flex-layout/extended';
 import { Angulartics2Module } from 'angulartics2';
 import { TransferHttpCacheModule } from '@nguniversal/common';
 import { BidiModule } from '@angular/cdk/bidi';
@@ -53,8 +51,6 @@ export const REQ_KEY = makeStateKey<string>('req');
     TransferHttpCacheModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    FlexModule,
-    ExtendedModule,
     PblDocsAppSharedModule,
     AppContentChunksModule,
     BidiModule,

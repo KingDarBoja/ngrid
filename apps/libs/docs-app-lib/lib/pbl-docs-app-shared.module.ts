@@ -17,9 +17,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSidenavModule } from '@angular/material/sidenav';
 
-import { FlexModule } from '@angular/flex-layout/flex';
-import { ExtendedModule } from '@angular/flex-layout/extended';
-
 import { PblNgridModule } from '@pebula/ngrid';
 import { PblTocModule } from '@pebula/apps/docs-app-lib/toc.module';
 
@@ -84,7 +81,6 @@ const MATERIAL_IMPORTS = [
     RouterModule,
     PortalModule,
     MATERIAL_IMPORTS,
-    FlexModule, ExtendedModule,
     PblTocModule,
     PblNgridModule,
   ],

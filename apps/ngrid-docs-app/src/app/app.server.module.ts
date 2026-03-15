@@ -1,9 +1,15 @@
 import { filter, first } from 'rxjs/operators';
-import { APP_BOOTSTRAP_LISTENER, ApplicationRef, NgModule } from '@angular/core';
+import {
+  APP_BOOTSTRAP_LISTENER,
+  ApplicationRef,
+  NgModule,
+  TransferState,
+} from '@angular/core';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { FlexLayoutServerModule } from '@angular/flex-layout/server';
-import { makeStateKey, TransferState } from '@angular/platform-browser';
-import { ServerModule, ServerTransferStateModule } from '@angular/platform-server';
+import {
+  ServerModule,
+  ServerTransferStateModule,
+} from '@angular/platform-server';
 import { Request } from 'express';
 import { REQUEST } from '@nguniversal/express-engine/tokens';
 
@@ -16,32 +22,37 @@ import { AppComponent } from './app.component';
     AppModule,
     ServerModule,
     ServerTransferStateModule,
-    FlexLayoutServerModule,
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: UniversalInterceptor,
-      multi: true
+      multi: true,
     },
     {
       provide: APP_BOOTSTRAP_LISTENER,
-      useFactory: (appRef: ApplicationRef, transferState: TransferState, request: Request) => () =>
-        appRef.isStable
-          .pipe(
-            filter(stable => stable),
-            first()
-          )
-          .subscribe(() => {
-            transferState.set<any>(REQ_KEY, {
-              hostname: request.hostname,
-              originalUrl: request.originalUrl,
-              referer: request.get('referer')
-            });
-          }),
+      useFactory:
+        (
+          appRef: ApplicationRef,
+          transferState: TransferState,
+          request: Request,
+        ) =>
+        () =>
+          appRef.isStable
+            .pipe(
+              filter((stable) => stable),
+              first(),
+            )
+            .subscribe(() => {
+              transferState.set<any>(REQ_KEY, {
+                hostname: request.hostname,
+                originalUrl: request.originalUrl,
+                referer: request.get('referer'),
+              });
+            }),
       multi: true,
-      deps: [ApplicationRef, TransferState, REQUEST]
-    }
+      deps: [ApplicationRef, TransferState, REQUEST],
+    },
   ],
   bootstrap: [AppComponent],
 })
