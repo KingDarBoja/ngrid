@@ -1,6 +1,6 @@
 {
   "name": "@pebula/ngrid",
-  "version": "6.0.0",
+  "version": "20.0.0",
   "description": "Angular Grid",
   "license": "MIT",
   "scripts": {
@@ -33,7 +33,7 @@
     "nx": "./node_modules/.bin/nx",
     "postinstall": "npx rimraf ./node_modules/node-sass && node ./decorate-angular-cli.js"
   },
-  "private": true,
+  "private": false,
   "dependencies": {
     "@angular/animations": "^20.0.0",
     "@angular/cdk": "^20.0.0",
@@ -178,7 +178,7 @@
     "url": "https://github.com/shlomiassaf/ngrid/issues"
   },
   "packageConfig": {
-    "defaultCommitProejct": "ngrid",
+    "defaultCommitProject": "ngrid",
     "angularPackageVersion": "^20.0.0",
     "releasePackages": [
       "ngrid",
