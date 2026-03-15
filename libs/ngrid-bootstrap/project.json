@@ -1,14 +1,17 @@
 {
   "name": "ngrid-bootstrap",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "tags": ["name:bootstrap", "type:lib", "parent:ngrid"],
   "sourceRoot": "libs/ngrid-bootstrap/src",
   "projectType": "library",
   "prefix": "pbl",
+  "generators": {
+    "@schematics/angular:component": {
+      "style": "scss"
+    }
+  },
   "targets": {
     "build": {
       "executor": "ng-cli-packagr-tasks:build",
-      "outputs": ["{workspaceRoot}/dist/@pebula/ngrid-bootstrap"],
       "options": {
         "tsConfig": "libs/ngrid-bootstrap/tsconfig.lib.json",
         "project": "libs/ngrid-bootstrap/ng-package.json",
@@ -54,20 +57,29 @@
       },
       "configurations": {
         "production": {
-          "tsConfig": "libs/ngrid-bootstrap/tsconfig.lib.prod.json"
-        },
-        "development": {
-          "tsConfig": "libs/ngrid-bootstrap/tsconfig.lib.json"
+          "tsConfig": "libs/ngrid-bootstrap/tsconfig.lib.prod.json",
+          "project": "libs/ngrid-bootstrap/ng-package.prod.json"
         }
+      }
+    },
+    "lint": {
+      "executor": "@angular-devkit/build-angular:tslint",
+      "options": {
+        "tsConfig": [
+          "libs/ngrid-bootstrap/tsconfig.lib.json",
+          "libs/ngrid-bootstrap/tsconfig.spec.json"
+        ],
+        "exclude": ["**/node_modules/**", "!libs/ngrid-bootstrap/**/*"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/ngrid-bootstrap"],
       "options": {
-        "jestConfig": "libs/ngrid-bootstrap/jest.config.ts",
-        "passWithNoTests": true
-      }
+        "jestConfig": "libs/ngrid-bootstrap/jest.config.js",
+        "passWithNoTests": true,
+        "tsConfig": "libs/ngrid-bootstrap/tsconfig.spec.json"
+      },
+      "outputs": ["{workspaceRoot}/coverage/libs/ngrid-bootstrap"]
     }
   }
 }

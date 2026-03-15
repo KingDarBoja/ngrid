@@ -1,38 +1,37 @@
 {
   "name": "ngrid-dev-app-e2e",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "tags": [],
   "sourceRoot": "apps/ngrid-dev-app-e2e/src",
   "projectType": "application",
   "targets": {
     "e2e": {
-      "executor": "@nrwl/cypress:cypress",
+      "executor": "@nx/cypress:cypress",
       "options": {
-        "cypressConfig": "apps/ngrid-dev-app-e2e/cypress.config.ts",
-        "devServerTarget": "ngrid-dev-app:serve",
-        "testingType": "e2e"
+        "cypressConfig": "apps/ngrid-dev-app-e2e/cypress.json",
+        "devServerTarget": "ngrid-dev-app:serve"
       },
       "configurations": {
+        "docker": {
+          "devServerTarget": "",
+          "baseUrl": "http://host.docker.internal:4200"
+        },
         "updateSnapshots": {
+          "headless": true,
           "env": {
             "updateSnapshots": true
           }
         },
         "production": {
           "devServerTarget": "ngrid-dev-app:serve:production"
-        },
-        "production-dist": {
-          "devServerTarget": "ngrid-dev-app:serve:production"
         }
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "executor": "@angular-devkit/build-angular:tslint",
       "options": {
-        "lintFilePatterns": ["apps/ngrid-dev-app-e2e/**/*.{js,ts}"]
+        "tsConfig": ["apps/ngrid-dev-app-e2e/tsconfig.e2e.json"],
+        "exclude": ["**/node_modules/**", "!apps/ngrid-dev-app-e2e/**/*"]
       }
     }
-  },
-  "implicitDependencies": ["ngrid-dev-app"]
+  }
 }

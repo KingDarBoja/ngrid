@@ -1,7 +1,6 @@
 {
   "name": "ngrid",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "tags": ["name:ngrid", "type:lib"],
   "sourceRoot": "libs/ngrid/src",
   "projectType": "library",
   "prefix": "pbl",
@@ -12,44 +11,105 @@
   },
   "targets": {
     "build": {
-      "executor": "@nx/angular:package",
-      "outputs": ["{workspaceRoot}/dist/@pebula/ngrid"],
+      "executor": "ng-cli-packagr-tasks:build",
       "options": {
+        "tsConfig": "libs/ngrid/tsconfig.lib.json",
         "project": "libs/ngrid/ng-package.json",
-        "tsConfig": "libs/ngrid/tsconfig.ng-packagr.json"
+        "tasks": {
+          "config": "tools/ng-packagr.transformers/ngrid.transformers.ts",
+          "tsConfig": "tools/tsconfig.json",
+          "data": {
+            "analyseSourcesWorkaround": {},
+            "copyFile": {
+              "assets": [
+                {
+                  "glob": "README.md",
+                  "input": ".",
+                  "output": "dist/@pebula/ngrid"
+                },
+                {
+                  "glob": "LICENSE",
+                  "input": ".",
+                  "output": "dist/@pebula/ngrid"
+                },
+                {
+                  "glob": "*.scss",
+                  "input": "libs/ngrid",
+                  "output": "dist/@pebula/ngrid"
+                },
+                {
+                  "glob": "**/*.scss",
+                  "input": "libs/ngrid/theming",
+                  "output": "dist/@pebula/ngrid/theming"
+                },
+                {
+                  "glob": "*/theming/**/*.scss",
+                  "input": "libs/ngrid",
+                  "output": "dist/@pebula/ngrid"
+                }
+              ]
+            },
+            "sassCompile": {
+              "entries": [
+                {
+                  "glob": "*.scss",
+                  "input": "libs/ngrid/theming/prebuilt",
+                  "output": "dist/@pebula/ngrid/themes"
+                }
+              ]
+            },
+            "schematicsCompile": {
+              "libPath": "./schematics",
+              "compilerOptions": {
+                "sourceMap": false,
+                "inlineSourceMap": true,
+                "inlineSources": true
+              }
+            }
+          }
+        }
       },
       "configurations": {
         "production": {
-          "tsConfig": "libs/ngrid/tsconfig.lib.prod.json"
-        },
-        "development": {
-          "tsConfig": "libs/ngrid/tsconfig.lib.json"
+          "tsConfig": "libs/ngrid/tsconfig.lib.prod.json",
+          "project": "libs/ngrid/ng-package.prod.json"
         }
       }
     },
     "test": {
       "executor": "@angular-devkit/build-angular:karma",
-      "outputs": ["{workspaceRoot}/coverage/libs/ngrid"],
       "options": {
         "main": "libs/ngrid/src/__test-runners/karma-test.ts",
-        "tsConfig": "libs/ngrid/tsconfig.spec.json",
+        "tsConfig": "libs/ngrid/tsconfig.spec.karma.json",
         "karmaConfig": "libs/ngrid/karma.conf.js"
       },
       "configurations": {
         "ci": {
           "watch": false,
           "progress": false,
-          "karmaConfig": "libs/ngrid/karma.conf.js",
           "browsers": "ChromeHeadlessCI"
         }
-      }
+      },
+      "outputs": ["{workspaceRoot}/coverage/libs/ngrid"]
     },
     "testJest": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/ngrid"],
       "options": {
-        "jestConfig": "libs/ngrid/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "libs/ngrid/jest.config.js",
+        "passWithNoTests": true,
+        "tsConfig": "libs/ngrid/tsconfig.spec.json"
+      },
+      "outputs": ["{workspaceRoot}/coverage/libs/ngrid"]
+    },
+    "lint": {
+      "executor": "@angular-devkit/build-angular:tslint",
+      "options": {
+        "tsConfig": [
+          "libs/ngrid/tsconfig.lib.json",
+          "libs/ngrid/tsconfig.spec.json",
+          "libs/ngrid/tsconfig.spec.json"
+        ],
+        "exclude": ["**/node_modules/**", "!libs/ngrid/**/*"]
       }
     }
   }

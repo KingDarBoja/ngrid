@@ -1,10 +1,10 @@
 {
   "name": "ngrid-docs-app",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "tags": ["type:app", "ngrid-docs-app"],
   "sourceRoot": "apps/ngrid-docs-app/src",
   "projectType": "application",
   "prefix": "pbl",
+  "tags": ["type:app", "ngrid-docs-app"],
   "targets": {
     "build": {
       "executor": "ngx-build-plus:build",
@@ -132,7 +132,8 @@
       "executor": "@nx/jest:jest",
       "options": {
         "jestConfig": "apps/ngrid-docs-app/jest.config.ts",
-        "passWithNoTests": true
+        "passWithNoTests": true,
+        "tsConfig": "apps/ngrid-docs-app/tsconfig.spec.json"
       },
       "outputs": ["{workspaceRoot}/coverage/apps/ngrid-docs-app/"]
     },

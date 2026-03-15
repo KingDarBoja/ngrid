@@ -1,39 +1,37 @@
 {
-  "name": "ngrid-docs-app-e2e",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "tags": ["type:e2e-app", "parent:ngrid-docs-app"],
   "sourceRoot": "apps/ngrid-docs-app-e2e/src",
   "projectType": "application",
   "targets": {
     "e2e": {
-      "executor": "@nx/cypress:cypress",
+      "executor": "@nrwl/nx:cypress",
       "options": {
-        "cypressConfig": "apps/ngrid-docs-app-e2e/cypress.config.ts",
-        "testingType": "e2e"
-      },
-      "configurations": {
-        "development": {
-          "devServerTarget": "ngrid-docs-app:serve:development"
-        },
-        "development-dist": {
-          "devServerTarget": "ngrid-docs-app:serve:development-dist"
-        },
-        "production": {
-          "devServerTarget": "ngrid-docs-app:serve:production"
-        },
-        "production-dist": {
-          "devServerTarget": "ngrid-docs-app:serve:production-dist"
+        "cypressConfig": "apps/ngrid-docs-app-e2e/cypress.json",
+        "tsConfig": "apps/ngrid-docs-app-e2e/tsconfig.e2e.json",
+        "devServerTarget": "ngrid-docs-app:serve",
+        "stylePreprocessorOptions": {
+          "sass": {
+            "silenceDeprecations": [
+              "mixed-decls",
+              "color-functions",
+              "global-builtin",
+              "import"
+            ]
+          }
         }
       },
-      "defaultConfiguration": "development"
+      "configurations": {
+        "production": {
+          "devServerTarget": "ngrid-docs-app:serve:production"
+        }
+      }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "executor": "@angular-devkit/build-angular:tslint",
       "options": {
-        "lintFilePatterns": ["apps/ngrid-docs-app-e2e/**/*.{js,ts}"]
+        "tsConfig": ["apps/ngrid-docs-app-e2e/tsconfig.e2e.json"],
+        "exclude": ["**/node_modules/**", "!apps/ngrid-docs-app-e2e/**/*"]
       }
     }
-  },
-  "implicitDependencies": ["ngrid-docs-app"]
+  }
 }

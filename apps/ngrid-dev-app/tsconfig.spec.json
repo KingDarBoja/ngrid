@@ -2,12 +2,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "types": ["jasmine", "node", "dev-mode-types"]
+    "types": ["jasmine", "node", "dev-mode-types"],
+    "moduleResolution": "bundler"
   },
   "files": ["src/test.ts", "src/polyfills.ts"],
-  "include": [
-    "**/*.spec.ts",
-    "**/*.d.ts",
-    "../../dev-mode-types.d.ts"
-  ]
+  "include": ["**/*.spec.ts", "**/*.d.ts", "../../dev-mode-types.d.ts"]
 }

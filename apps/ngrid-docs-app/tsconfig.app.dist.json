@@ -10,6 +10,7 @@
       "@pebula/ngrid-bootstrap/lib/*": ["dist/@pebula/ngrid-bootstrap/lib/*"],
       "@pebula/ngrid-cypress/lib/*": ["dist/@pebula/ngrid-cypress/lib/*"],
       "@pebula/*": ["dist/@pebula/*"]
-    }
+    },
+    "moduleResolution": "bundler"
   }
 }

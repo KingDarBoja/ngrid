@@ -1,15 +1,18 @@
 {
   "name": "ngrid-cypress",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "tags": ["name:material", "type:lib", "parent:ngrid"],
   "sourceRoot": "libs/ngrid-cypress/src",
   "projectType": "library",
+  "prefix": "pbl",
+  "generators": {
+    "@schematics/angular:component": {
+      "style": "scss"
+    }
+  },
   "targets": {
     "build": {
       "executor": "ng-cli-packagr-tasks:build",
-      "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/@pebula/ngrid-cypress",
         "tsConfig": "libs/ngrid-cypress/tsconfig.lib.json",
         "project": "libs/ngrid-cypress/ng-package.json",
         "tasks": {
@@ -48,18 +51,19 @@
       },
       "configurations": {
         "production": {
-          "tsConfig": "libs/ngrid-cypress/tsconfig.lib.prod.json"
-        },
-        "development": {
-          "tsConfig": "libs/ngrid-cypress/tsconfig.lib.json"
+          "tsConfig": "libs/ngrid-cypress/tsconfig.lib.prod.json",
+          "project": "libs/ngrid-cypress/ng-package.prod.json"
         }
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "executor": "@angular-devkit/build-angular:tslint",
       "options": {
-        "lintFilePatterns": ["libs/ngrid-cypress/**/*.ts"]
+        "tsConfig": [
+          "libs/ngrid-cypress/tsconfig.lib.json",
+          "libs/ngrid-cypress/tsconfig.spec.json"
+        ],
+        "exclude": ["**/node_modules/**", "!libs/ngrid-cypress/**/*"]
       }
     }
   }
