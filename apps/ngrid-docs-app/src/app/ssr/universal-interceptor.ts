@@ -1,23 +1,35 @@
-import { Injectable, Inject, Optional } from '@angular/core';
-import { HttpInterceptor, HttpHandler, HttpRequest } from '@angular/common/http';
-import { Request } from 'express';
-import { REQUEST } from '@nguniversal/express-engine/tokens';
+import {
+  HttpHandlerFn,
+  HttpRequest,
+  HttpInterceptorFn,
+} from '@angular/common/http';
+import { inject, REQUEST } from '@angular/core';
 
-@Injectable()
-export class UniversalInterceptor implements HttpInterceptor {
+export const universalInterceptor: HttpInterceptorFn = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+) => {
+  // Inject the Web API Request object from @angular/core
+  const serverRequest = inject(REQUEST, { optional: true });
 
-  constructor(@Optional() @Inject(REQUEST) protected request: Request) {}
+  // Only apply logic if we are on the server (serverRequest exists)
+  // and the URL is relative
+  if (serverRequest && !req.url.startsWith('http')) {
+    const urlObj = new URL(serverRequest.url);
+    const protocol = urlObj.protocol; // e.g., 'https:'
+    const host = urlObj.host; // e.g., 'example.com'
 
-  intercept(req: HttpRequest<any>, next: HttpHandler) {
-    let serverReq: HttpRequest<any> = req;
-    if (this.request) {
-      let newUrl = `${this.request.protocol}://${this.request.get('host')}`;
-      if (!req.url.startsWith('/')) {
-        newUrl += '/';
-      }
-      newUrl += req.url;
-      serverReq = req.clone({url: newUrl});
+    let newUrl = `${protocol}//${host}`;
+
+    if (!req.url.startsWith('/')) {
+      newUrl += '/';
     }
-    return next.handle(serverReq);
+
+    newUrl += req.url;
+
+    const serverReq = req.clone({ url: newUrl });
+    return next(serverReq);
   }
-}
+
+  return next(req);
+};

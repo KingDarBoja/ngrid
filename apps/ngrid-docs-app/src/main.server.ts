@@ -1,12 +1,8 @@
-import { enableProdMode } from '@angular/core';
-import '@angular/localize/init'; // ng-bootstrap
+// main.server.ts
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { config } from './app/app.config.server';
 
-import { environment } from './environments/environment';
+const bootstrap = () => bootstrapApplication(AppComponent, config);
 
-if (environment.production) {
-  enableProdMode();
-}
-
-export { AppServerModule } from './app/app.server.module';
-export { ngExpressEngine } from '@nguniversal/express-engine';
-export { renderModule, renderModuleFactory } from '@angular/platform-server';
+export default bootstrap;

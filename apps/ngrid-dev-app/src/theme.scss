@@ -1,26 +1,62 @@
-@use '@angular/material' as mat;
-@use '../../../libs/ngrid' as ngrid;
-@use '../../../libs/ngrid-material' as ngrid-material;
+@use "@angular/material" as mat;
+@use "../../../libs/ngrid" as ngrid;
+@use "../../../libs/ngrid-material" as ngrid-material;
 
-$typography-config: mat.define-typography-config();
-$ngrid-material-starter-primary: mat.define-palette(mat.$indigo-palette);
-$ngrid-material-starter-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
-$ngrid-material-starter-warn: mat.define-palette(mat.$red-palette);
-$ngrid-material-starter-theme: mat.define-light-theme($ngrid-material-starter-primary, $ngrid-material-starter-accent, $ngrid-material-starter-warn);
+// 1. Core setup
+@include mat.core();
+
+// 2. Define the theme using the modern M3-compatible syntax
+// Note: Angular 20 prefers a single configuration object
+$ngrid-material-starter-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+      // 'accent' becomes 'tertiary' in M3
+      tertiary: mat.$rose-palette,
+      // 'warn' is now handled automatically by M3 or mapped to 'error'
+    ),
+    typography: (
+      brand-family: 'Roboto, "Helvetica Neue", sans-serif',
+      plain-family: 'Roboto, "Helvetica Neue", sans-serif'
+    ),
+    density: 0 // Optional: can be 0, -1, -2, etc.
+  )
+);
+
+// 3. Apply ngrid specific theme enhancements
 $ngrid-material-starter-theme: ngrid.define-light-theme($ngrid-material-starter-theme);
 
-@include mat.core($typography-config);
-@include ngrid.ngrid-typography($typography-config);
+// 4. Include themes
 @include mat.all-component-themes($ngrid-material-starter-theme);
 @include ngrid-material.all-ngrid-material-theme($ngrid-material-starter-theme);
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+// $typography-config: mat.define-typography-config();
+// $ngrid-material-starter-primary: mat.define-palette(mat.$indigo-palette);
+// $ngrid-material-starter-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+// $ngrid-material-starter-warn: mat.define-palette(mat.$red-palette);
+// $ngrid-material-starter-theme: mat.define-light-theme($ngrid-material-starter-primary, $ngrid-material-starter-accent, $ngrid-material-starter-warn);
+// $ngrid-material-starter-theme: ngrid.define-light-theme($ngrid-material-starter-theme);
+
+// @include mat.core($typography-config);
+// @include ngrid.ngrid-typography($typography-config);
+// @include mat.all-component-themes($ngrid-material-starter-theme);
+// @include ngrid-material.all-ngrid-material-theme($ngrid-material-starter-theme);
+
+// Global Styles
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 .fixed-height-grid-300 {
   height: 300px;
 }
-
 .fixed-height-grid-500 {
   height: 500px;
 }

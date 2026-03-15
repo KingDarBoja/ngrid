@@ -8,7 +8,6 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { trigger, transition, animate, style } from '@angular/animations'
-import { Angulartics2 } from 'angulartics2';
 
 import { unrx } from '@pebula/ngrid/core';
 import type { ExampleFileAsset } from '@pebula-internal/webpack-markdown-code-examples';
@@ -58,7 +57,6 @@ export class ExampleViewComponent extends MarkdownDynamicComponentPortal impleme
   exampleStyle: 'toolbar' | 'flow' = 'toolbar';
 
   constructor(@Inject(INJECTOR) injector: Injector,
-              private angulartics2: Angulartics2,
               private exampleService: MarkdownCodeExamplesService,
               @Inject(EXAMPLE_COMPONENTS_TOKEN) private exampleComponents: {[key: string]: LiveExample} ) {
     super(injector);
@@ -82,13 +80,13 @@ export class ExampleViewComponent extends MarkdownDynamicComponentPortal impleme
   toggleViewSourceCode(): void {
     this.viewSourceCode = !this.viewSourceCode;
     if (this.viewSourceCode) {
-      this.angulartics2.eventTrack.next({
-        action: 'ViewSourceCode',
-        properties: {
-          category: 'SourceCodeOpen',
-          label: this.exampleData.title,
-        },
-      });
+      // this.angulartics2.eventTrack.next({
+      //   action: 'ViewSourceCode',
+      //   properties: {
+      //     category: 'SourceCodeOpen',
+      //     label: this.exampleData.title,
+      //   },
+      // });
     }
   }
 

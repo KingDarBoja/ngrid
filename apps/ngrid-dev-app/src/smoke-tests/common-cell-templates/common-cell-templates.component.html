@@ -9,24 +9,35 @@
 <!-- DEFINING DEFAULT NO DATA TEMPLATE -->
 
 <!-- DEFINING DEFAULT ADMIN MODULE WIDE COLUMNS FOR PBL-NGRID -->
-<div *pblNgridCellTypeDef="'visualBool'; value as value;">{{ value ? '✅' : '🚫' }}</div>
-<div *pblNgridCellTypeDef="'date'; value as value;">{{value | date: 'MMM dd, yyyy'}}</div>
-<div *pblNgridCellTypeDef="'number'; value as value;">{{value | number: '1.0-2'}}</div>
+<div *pblNgridCellTypeDef="'visualBool'; let value = value">
+  {{ value ? '✅' : '🚫' }}
+</div>
+<div *pblNgridCellTypeDef="'date'; let value = value">
+  {{ value | date: 'MMM dd, yyyy' }}
+</div>
+<div *pblNgridCellTypeDef="'number'; let value = value">
+  {{ value | number: '1.0-2' }}
+</div>
 <!-- Set's the currency based on a predefined currency in ISO format, provided in the `type.data` property of the column -->
-<div *pblNgridCellTypeDef="'currency'; value as value; col as col;">{{value | currency:col.type.data:'symbol':'1.0-2'}}</div>
-<div *pblNgridCellTypeDef="'datetime'; value as value;">{{value | date: 'MMM dd, yyyy  HH:mm'}}</div>
-
-<!-- START RATINGS -->
-<div *pblNgridCellTypeDef="'starRatings'; value as value">
-  {{ value >= 1 ? '★' : '☆' }}
-  {{ value >= 2 ? '★' : '☆' }}
-  {{ value >= 3 ? '★' : '☆' }}
-  {{ value >= 4 ? '★' : '☆' }}
-  {{ value === 5 ? '★' : '☆' }}
+<div *pblNgridCellTypeDef="'currency'; let value = value; let col = col">
+  {{ value | currency: col.type.data : 'symbol' : '1.0-2' }}
+</div>
+<div *pblNgridCellTypeDef="'datetime'; let value = value">
+  {{ value | date: 'MMM dd, yyyy HH:mm' }}
 </div>
 
-<div *pblNgridCellTypeDef="'progressBar'; value as value; col as col" style="width:  100%;">
-  <div [ngStyle]="col.type.data.style(value)" [style.width]="value + '%'">
+<!-- START RATINGS -->
+<div *pblNgridCellTypeDef="'starRatings'; let value = value">
+  @for (star of [1, 2, 3, 4, 5]; track star) {
+    {{ value >= star ? '★' : '☆' }}
+  }
+</div>
+
+<div
+  *pblNgridCellTypeDef="'progressBar'; let value = value; let col = col"
+  style="width: 100%"
+>
+  <div [style]="col.type.data?.style?.(value)" [style.width.%]="value">
     <div>{{ value }}%</div>
   </div>
 </div>

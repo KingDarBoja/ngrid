@@ -30,15 +30,16 @@ import {
   DemoActionRowComponent,
   AppSearchInput,
   AppSearchResults,
- } from './components';
+} from './components';
 
 import { NgEventsDirective } from './directives/ng-hooks';
-import { ContentChunkViewGhostDirective, ExampleViewGhostDirective } from './directives/ghosts';
+import {
+  ContentChunkViewGhostDirective,
+  ExampleViewGhostDirective,
+} from './directives/ghosts';
 import { PblNegatePipe } from './pipes';
 
-const PIPES_EXPORT = [
-  PblNegatePipe
-];
+const PIPES_EXPORT = [PblNegatePipe];
 
 const DECLARATION_EXPORT = [
   MarkdownPageContainerComponent,
@@ -51,8 +52,9 @@ const DECLARATION_EXPORT = [
   DemoActionRowComponent,
   AppSearchInput,
   AppSearchResults,
-  ContentChunkViewGhostDirective, ExampleViewGhostDirective,
-]
+  ContentChunkViewGhostDirective,
+  ExampleViewGhostDirective,
+];
 
 const MATERIAL_IMPORTS = [
   MatFormFieldModule,
@@ -72,10 +74,7 @@ const MATERIAL_IMPORTS = [
 ];
 
 @NgModule({
-  declarations: [
-    DECLARATION_EXPORT,
-    PIPES_EXPORT,
-  ],
+  declarations: [DECLARATION_EXPORT, PIPES_EXPORT],
   imports: [
     CommonModule,
     RouterModule,
@@ -84,14 +83,6 @@ const MATERIAL_IMPORTS = [
     PblTocModule,
     PblNgridModule,
   ],
-  exports: [
-    DECLARATION_EXPORT,
-    PIPES_EXPORT,
-
-    PblNgridModule
-  ],
-  providers: [ ],
+  exports: [DECLARATION_EXPORT, PIPES_EXPORT, PblNgridModule],
 })
-export class PblDocsAppSharedModule {
-
-}
+export class PblDocsAppSharedModule {}

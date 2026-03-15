@@ -4,13 +4,19 @@ export const ROUTES: Routes = [
   {
     path: 'dev-app-smoke-tests',
     pathMatch: 'full',
-    loadChildren: () => import('./smoke-tests/smoke-tests.module').then(m => m.SmokeTestsExampleModule),
+    loadComponent: () =>
+      import('./smoke-tests/smoke-tests.component').then(
+        (m) => m.SmokeTestsExample,
+      ),
     data: { name: 'Smoke Tests' },
   },
   {
     path: 'ngrid-column-width',
     pathMatch: 'full',
-    loadChildren: () => import('./ngrid/column-width/column-width.module').then(m => m.ColumnWidthExampleModule),
+    loadComponent: () =>
+      import('./ngrid/column-width/column-width.component').then(
+        (m) => m.ColumnWidthExample,
+      ),
     data: { name: 'Column Width' },
-  }
+  },
 ];

@@ -1,61 +1,59 @@
-import './polyfills';
-
-/**
- * *** NOTE ON IMPORTING FROM ANGULAR AND NGUNIVERSAL IN THIS FILE ***
- *
- * If your application uses third-party dependencies, you'll need to
- * either use Webpack or the Angular CLI's `bundleDependencies` feature
- * in order to adequately package them for use on the server without a
- * node_modules directory.
- *
- * However, due to the nature of the CLI's `bundleDependencies`, importing
- * Angular in this file will create a different instance of Angular than
- * the version in the compiled application code. This leads to unavoidable
- * conflicts. Therefore, please do not explicitly import from @angular or
- * @nguniversal in this file. You can export any needed resources
- * from your application's main.server.ts file, as seen below with the
- * import for `ngExpressEngine`.
- */
-
 import 'zone.js/node';
-
 import * as express from 'express';
 import { join } from 'path';
+import { APP_BASE_HREF } from '@angular/common';
+import { CommonEngine } from '@angular/ssr/node';
 import { processPages } from './process-pages';
+import { REQUEST, RESPONSE_INIT } from '@angular/core';
 
 // Express server
 const app = express();
 
 const PORT = process.env.PORT || 4001;
 const DIST_FOLDER = join(process.cwd(), 'dist/browser');
-const DIST_SERVER_FOLDER = join(process.cwd(), 'dist/server');
 
-// * NOTE :: leave this as require() since this file is built Dynamically from webpack
-const {AppServerModule, ngExpressEngine } = require('./dist/server/main');
+/**
+ * In Webpack-based Angular SSR, the main.server.ts is bundled into a single file.
+ * We require it here. Note that in Angular 18, we use CommonEngine 
+ * instead of the old ngExpressEngine.
+ */
+const bootstrap = require('./dist/server/main').default;
 
-// Our Universal express-engine (found @ https://github.com/angular/universal/tree/master/modules/express-engine)
-app.engine('html', ngExpressEngine({
-  bootstrap: AppServerModule,
-}));
+const commonEngine = new CommonEngine();
 
 app.set('view engine', 'html');
 app.set('views', DIST_FOLDER);
 
-// Example Express Rest API endpoints
-// app.get('/api/**', (req, res) => { });
-// Serve static files from /browser
+// Serve static files
 app.get('*.*', express.static(DIST_FOLDER, {
   maxAge: '1y'
 }));
-app.get('*.*', express.static(DIST_SERVER_FOLDER));
 
-// All regular routes use the Universal engine
-app.get('*', (req, res) => {
-  res.render('index', { req });
+// All regular routes use the new Angular CommonEngine
+app.get('*', (req, res, next) => {
+  const { protocol, originalUrl, baseUrl, headers } = req;
+
+  commonEngine
+    .render({
+      bootstrap,
+      documentFilePath: join(DIST_FOLDER, 'index.html'),
+      url: `${protocol}://${headers.host}${originalUrl}`,
+      publicPath: DIST_FOLDER,
+      providers: [
+        { provide: APP_BASE_HREF, useValue: baseUrl },
+        { provide: REQUEST, useValue: req },
+        { provide: RESPONSE_INIT, useValue: res },
+      ],
+    })
+    .then((html) => res.send(html))
+    .catch((err) => {
+      console.error('Error during SSR rendering', err);
+      next(err);
+    });
 });
 
 // Start up the Node server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Node Express server listening on http://localhost:${PORT}`);
 
   console.log('Pre-rendering app...');
@@ -65,9 +63,15 @@ app.listen(PORT, () => {
     distFolder: DIST_FOLDER,
     ssrPagesFilename: 'ssr-pages.json',
   })
-  .then( () => {
+  .then(() => {
     console.log('Done!');
+    // If this is a build-time script, we exit. 
+    // If this is a live server, you might want to remove process.exit.
+    server.close();
     process.exit(0);
+  })
+  .catch(err => {
+    console.error('Pre-rendering failed', err);
+    process.exit(1);
   });
 });
-
