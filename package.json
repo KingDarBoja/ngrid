@@ -30,8 +30,7 @@
     "affected:libs": "./node_modules/.bin/nx affected:libs",
     "affected": "./node_modules/.bin/nx affected",
     "example": "./node_modules/.bin/nx workspace-schematic create-docs-app-module",
-    "nx": "./node_modules/.bin/nx",
-    "postinstall": "npx rimraf ./node_modules/node-sass && node ./decorate-angular-cli.js"
+    "nx": "./node_modules/.bin/nx"
   },
   "private": false,
   "dependencies": {
