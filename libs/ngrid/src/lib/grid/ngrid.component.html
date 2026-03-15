@@ -1,40 +1,58 @@
 <!-- GRID HEADER ROW DEF - THE MAIN HEADER OF THE GRID -->
-<pbl-ngrid-column-row *cdkHeaderRowDef="[]; sticky: columnRowDef.header?.type === 'sticky'"
-                      [row]="columnRowDef.header"
-                      class="pbl-ngrid-header-row-main"></pbl-ngrid-column-row>
+<pbl-ngrid-column-row
+  *cdkHeaderRowDef="[]; sticky: columnRowDef.header?.type === 'sticky'"
+  [row]="columnRowDef.header"
+  class="pbl-ngrid-header-row-main"
+/>
 
 <!-- DUPLICATE HEADER FOR THE MAIN HEADER, NEVER SEEN (NOT VISUAL), USED FOR RESIZING -->
-<pbl-ngrid-column-row *cdkHeaderRowDef="[];"
-                      [row]="columnRowDef.header"
-                      gridWidthRow
-                      style="visibility: hidden !important;"
-                      class="pbl-ngrid-row-visually-hidden"></pbl-ngrid-column-row>
+<pbl-ngrid-column-row
+  *cdkHeaderRowDef="[]"
+  [row]="columnRowDef.header"
+  gridWidthRow
+  style="visibility: hidden !important"
+  class="pbl-ngrid-row-visually-hidden"
+/>
 
 <!-- MULTI-HEADER ROW DEF & MULTI-HEADER GROUP ROW DEFINITION TEMPLATES -->
-<ng-container *ngFor="let row of metaHeaderRows;">
-  <pbl-ngrid-meta-row *cdkHeaderRowDef="[]; sticky: row.rowDef.type === 'sticky'" [row]="row"></pbl-ngrid-meta-row>
-</ng-container>
+@for (row of metaHeaderRows; track $index) {
+  <pbl-ngrid-meta-row
+    *cdkHeaderRowDef="[]; sticky: row.rowDef.type === 'sticky'"
+    [row]="row"
+  />
+}
 
 <!-- GRID FOOTER ROW DEF -->
-<pbl-ngrid-column-row *cdkFooterRowDef="[]; sticky: columnRowDef.footer?.type === 'sticky'"
-                      footer [row]="columnRowDef.footer"></pbl-ngrid-column-row>
+<pbl-ngrid-column-row
+  *cdkFooterRowDef="[]; sticky: columnRowDef.footer?.type === 'sticky'"
+  footer
+  [row]="columnRowDef.footer"
+/>
+
 <!-- GRID FOOTER ROW DEF -->
 <!-- MULTI-FOOTER ROW DEF -->
-<ng-container *ngFor="let row of metaFooterRows;">
-  <pbl-ngrid-meta-row footer *cdkFooterRowDef="[]; sticky: row.rowDef.type === 'sticky'" [row]="row"></pbl-ngrid-meta-row>
-</ng-container>
+@for (row of metaFooterRows; track $index) {
+  <pbl-ngrid-meta-row
+    footer
+    *cdkFooterRowDef="[]; sticky: row.rowDef.type === 'sticky'"
+    [row]="row"
+  />
+}
 
 <div class="pbl-ngrid-container">
   <ng-container #beforeTable></ng-container>
   <div pbl-ngrid-fixed-meta-row-container="header"></div>
-  <pbl-cdk-virtual-scroll-viewport class="pbl-ngrid-scroll-container"
-                                   [stickyRowHeaderContainer]="stickyRowHeaderContainer" [stickyRowFooterContainer]="stickyRowFooterContainer">
+  <pbl-cdk-virtual-scroll-viewport
+    class="pbl-ngrid-scroll-container"
+    [stickyRowHeaderContainer]="stickyRowHeaderContainer"
+    [stickyRowFooterContainer]="stickyRowFooterContainer"
+  >
     <pbl-cdk-table tabindex="-1">
       <!-- Row templates. The columns used are set at the row template level -->
 
       <!-- GRID RECORD ROW DEFINITION TEMPLATES -->
       <!-- We dont need columns because we implement them internally -->
-      <pbl-ngrid-row *pblNgridRowDef="let row;" row></pbl-ngrid-row>
+      <pbl-ngrid-row *pblNgridRowDef="let row" row />
       <!-- GRID RECORD ROW DEFINITION TEMPLATES -->
     </pbl-cdk-table>
   </pbl-cdk-virtual-scroll-viewport>
@@ -42,9 +60,10 @@
 
   <ng-container #beforeContent>
     <!-- This dummy row is used to extract an initial row height -->
-    <div role="row" row="" class="pbl-ngrid-row cdk-row" style="display: none;"></div>
+    <div role="row" class="pbl-ngrid-row cdk-row" style="display: none"></div>
   </ng-container>
   <ng-content></ng-content>
+
   <ng-container #afterContent></ng-container>
 
   <!-- Placeholder for header/footer scroll containers that will get populated with header/meta roles when the following conditions are met:
@@ -61,10 +80,28 @@
 
        Implementation is in the virtual scroll viewport (more precisely in `PblVirtualScrollForOf`)
   -->
-  <div #stickyRowHeaderContainer class="pbl-ngrid-sticky-row-scroll-container"><div [style.minWidth.px]="innerTableMinWidth"></div></div> <!-- HEADERS -->
-  <div #stickyRowFooterContainer class="pbl-ngrid-sticky-row-scroll-container"><div [style.minWidth.px]="innerTableMinWidth"></div></div> <!-- FOOTERS -->
+  <div #stickyRowHeaderContainer class="pbl-ngrid-sticky-row-scroll-container">
+    <div [style.minWidth.px]="innerTableMinWidth"></div>
+  </div>
+  <!-- HEADERS -->
+  <div #stickyRowFooterContainer class="pbl-ngrid-sticky-row-scroll-container">
+    <div [style.minWidth.px]="innerTableMinWidth"></div>
+  </div>
+  <!-- FOOTERS -->
 </div>
 
-<ng-template #fbTableCell let-value="value"><div>{{value}}</div></ng-template>
-<ng-template #fbHeaderCell let-column="col"><div>{{column.label}}</div></ng-template>
-<ng-template #fbFooterCell let-column="col"><div>{{column.label}}</div></ng-template>
+<ng-template #fbTableCell let-value="value">
+  <div>
+    {{ value }}
+  </div>
+</ng-template>
+<ng-template #fbHeaderCell let-column="col">
+  <div>
+    {{ column.label }}
+  </div>
+</ng-template>
+<ng-template #fbFooterCell let-column="col">
+  <div>
+    {{ column.label }}
+  </div>
+</ng-template>

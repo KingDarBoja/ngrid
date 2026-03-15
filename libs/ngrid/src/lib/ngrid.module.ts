@@ -18,8 +18,11 @@ import { CommonModule } from '@angular/common';
 import { ScrollingModule as ScrollingModuleExp } from '@angular/cdk-experimental/scrolling';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CdkTableModule } from '@angular/cdk/table';
-import { PEB_NGRID_CONFIG, PblNgridConfig, PblNgridConfigService } from '@pebula/ngrid/core';
-
+import {
+  PEB_NGRID_CONFIG,
+  PblNgridConfig,
+  PblNgridConfigService,
+} from '@pebula/ngrid/core';
 
 /**
  * NOTE ABOUT IMPORTS
@@ -31,8 +34,11 @@ import { PEB_NGRID_CONFIG, PblNgridConfig, PblNgridConfigService } from '@pebula
  * IT HAPPENS BECAUSE OF THE WAY ANGULAR RE-BUILDS THE D.TS FILES AND METADATA FILES
  */
 import { PblNgridRegistryService } from './grid/registry/registry.service';
-import { PblCdkTableComponent }  from './grid/pbl-cdk-table/pbl-cdk-table.component';
-import { PblNgridRowDef, PblNgridRowOverride } from './grid/row/row-def.directive';
+import { PblCdkTableComponent } from './grid/pbl-cdk-table/pbl-cdk-table.component';
+import {
+  PblNgridRowDef,
+  PblNgridRowOverride,
+} from './grid/row/row-def.directive';
 import { PblNgridRowComponent } from './grid/row/row.component';
 import { PblNgridColumnRowComponent } from './grid/row/columns-row.component';
 import { PblNgridMetaRowComponent } from './grid/row/meta-row.component';
@@ -56,13 +62,15 @@ import { PblNgridHideColumns } from './grid/features/hide-columns.directive';
 import { PblCdkVirtualScrollViewportComponent } from './grid/features/virtual-scroll/virtual-scroll-viewport.component';
 import { PblCdkVirtualScrollDirective } from './grid/features/virtual-scroll/strategies/v-scroll.directive';
 // TODO: Move to an independent package in v4
-import { PblCdkAutoSizeVirtualScrollDirective }  from './grid/features/virtual-scroll/strategies/cdk-wrappers/v-scroll-auto.directive';
-import { PblCdkFixedSizedVirtualScrollDirective }  from './grid/features/virtual-scroll/strategies/cdk-wrappers/v-scroll-fixed.directive';
+import { PblCdkAutoSizeVirtualScrollDirective } from './grid/features/virtual-scroll/strategies/cdk-wrappers/v-scroll-auto.directive';
+import { PblCdkFixedSizedVirtualScrollDirective } from './grid/features/virtual-scroll/strategies/cdk-wrappers/v-scroll-fixed.directive';
 import { PblNgridScrolling } from './grid/features/virtual-scroll/scrolling-plugin.directive';
 import { PblNgridComponent } from './grid/ngrid.component';
 import { PROVIDERS } from './di-factories';
 
-export const COMMON_TABLE_TEMPLATE_INIT = new InjectionToken('COMMON TABLE TEMPLATE INIT');
+export const COMMON_TABLE_TEMPLATE_INIT = new InjectionToken(
+  'COMMON TABLE TEMPLATE INIT',
+);
 
 export interface CommonTemplateInit {
   component: Type<any>;
@@ -80,122 +88,145 @@ export function provideCommon(components: CommonTemplateInit[]): any {
 }
 
 @NgModule({
-    imports: [
-        CommonModule,
-        ScrollingModule, ScrollingModuleExp,
-        CdkTableModule,
-    ],
-    declarations: [
-        PblNgridMetaRowContainerComponent,
-        PblCdkTableComponent,
-        PblNgridColumnDef,
-        PblNgridRowDef, PblNgridRowOverride, PblNgridRowComponent, PblNgridColumnRowComponent, PblNgridMetaRowComponent,
-        PblNgridCellStyling,
-        PblNgridOuterSectionDirective,
-        PblNgridHeaderExtensionRefDirective,
-        PblNgridNoDataRefDirective,
-        PblNgridPaginatorRefDirective,
-        PblNgridHeaderCellDefDirective,
-        PblNgridFooterCellDefDirective,
-        PblNgridCellDefDirective, PblNgridEditorCellDefDirective,
-        PblNgridHeaderCellComponent,
-        PblNgridCellComponent,
-        PblNgridFooterCellComponent,
-        PblNgridMetaCellComponent,
-        PblNgridHideColumns,
-        PblCdkVirtualScrollViewportComponent, PblNgridScrolling,
-        PblCdkVirtualScrollDirective,
-        // TODO: Move to an independent package in v4
-        PblCdkAutoSizeVirtualScrollDirective, PblCdkFixedSizedVirtualScrollDirective,
-        PblNgridCellEditAutoFocusDirective,
-        PblNgridComponent,
-    ],
-    providers: [
-        ...PROVIDERS,
-    ],
-    exports: [
-        PblNgridRowDef, PblNgridRowOverride, PblNgridRowComponent, PblNgridColumnRowComponent, PblNgridMetaRowComponent,
-        PblNgridCellStyling,
-        PblNgridOuterSectionDirective,
-        PblNgridHeaderExtensionRefDirective,
-        PblNgridNoDataRefDirective,
-        PblNgridPaginatorRefDirective,
-        PblNgridHeaderCellDefDirective,
-        PblNgridFooterCellDefDirective,
-        PblNgridCellDefDirective, PblNgridEditorCellDefDirective, PblNgridScrolling,
-        PblNgridHeaderCellComponent,
-        PblNgridCellComponent,
-        PblNgridFooterCellComponent,
-        PblNgridMetaCellComponent,
-        PblNgridHideColumns,
-        PblCdkVirtualScrollDirective,
-        // TODO: Move to an independent package in v4
-        PblCdkAutoSizeVirtualScrollDirective, PblCdkFixedSizedVirtualScrollDirective,
-        PblNgridCellEditAutoFocusDirective,
-        PblNgridComponent,
-    ]
+  imports: [CommonModule, ScrollingModule, ScrollingModuleExp, CdkTableModule],
+  declarations: [
+    PblNgridMetaRowContainerComponent,
+    PblCdkTableComponent,
+    PblNgridColumnDef,
+    PblNgridRowDef,
+    PblNgridRowOverride,
+    PblNgridRowComponent,
+    PblNgridColumnRowComponent,
+    PblNgridMetaRowComponent,
+    PblNgridCellStyling,
+    PblNgridOuterSectionDirective,
+    PblNgridHeaderExtensionRefDirective,
+    PblNgridNoDataRefDirective,
+    PblNgridPaginatorRefDirective,
+    PblNgridHeaderCellDefDirective,
+    PblNgridFooterCellDefDirective,
+    PblNgridCellDefDirective,
+    PblNgridEditorCellDefDirective,
+    PblNgridHeaderCellComponent,
+    PblNgridCellComponent,
+    PblNgridFooterCellComponent,
+    PblNgridMetaCellComponent,
+    PblNgridHideColumns,
+    PblCdkVirtualScrollViewportComponent,
+    PblNgridScrolling,
+    PblCdkVirtualScrollDirective,
+    // TODO: Move to an independent package in v4
+    PblCdkAutoSizeVirtualScrollDirective,
+    PblCdkFixedSizedVirtualScrollDirective,
+    PblNgridCellEditAutoFocusDirective,
+    PblNgridComponent,
+  ],
+  providers: [...PROVIDERS],
+  exports: [
+    PblNgridRowDef,
+    PblNgridRowOverride,
+    PblNgridRowComponent,
+    PblNgridColumnRowComponent,
+    PblNgridMetaRowComponent,
+    PblNgridCellStyling,
+    PblNgridOuterSectionDirective,
+    PblNgridHeaderExtensionRefDirective,
+    PblNgridNoDataRefDirective,
+    PblNgridPaginatorRefDirective,
+    PblNgridHeaderCellDefDirective,
+    PblNgridFooterCellDefDirective,
+    PblNgridCellDefDirective,
+    PblNgridEditorCellDefDirective,
+    PblNgridScrolling,
+    PblNgridHeaderCellComponent,
+    PblNgridCellComponent,
+    PblNgridFooterCellComponent,
+    PblNgridMetaCellComponent,
+    PblNgridHideColumns,
+    PblCdkVirtualScrollDirective,
+    // TODO: Move to an independent package in v4
+    PblCdkAutoSizeVirtualScrollDirective,
+    PblCdkFixedSizedVirtualScrollDirective,
+    PblNgridCellEditAutoFocusDirective,
+    PblNgridComponent,
+  ],
 })
 export class PblNgridModule {
-
-  constructor(ngRef: NgModuleRef<any>,
-              registry: PblNgridRegistryService,
-              @Inject(COMMON_TABLE_TEMPLATE_INIT) @Optional() @Self() components: CommonTemplateInit[][]) {
-
+  constructor(
+    ngRef: NgModuleRef<any>,
+    registry: PblNgridRegistryService,
+    @Inject(COMMON_TABLE_TEMPLATE_INIT)
+    @Optional()
+    @Self()
+    components: CommonTemplateInit[][],
+  ) {
     if (components) {
       for (const multi of components) {
         for (const c of multi) {
           if (c.root) {
             registry = registry.getRoot();
           }
-          PblNgridModule.loadCommonTemplates(ngRef, c.component, { registry, destroy: true });
+          PblNgridModule.loadCommonTemplates(ngRef, c.component, {
+            registry,
+            destroy: true,
+          });
         }
       }
     }
   }
 
-  static forRoot(config: PblNgridConfig, components: CommonTemplateInit[]): ModuleWithProviders<PblNgridModule> {
+  static forRoot(
+    config: PblNgridConfig,
+    components: CommonTemplateInit[],
+  ): ModuleWithProviders<PblNgridModule> {
     return {
       ngModule: PblNgridModule,
       providers: [
         { provide: PEB_NGRID_CONFIG, useValue: config },
         PblNgridConfigService,
         provideCommon(components),
-      ]
+      ],
     };
   }
 
-  static withCommon(components: CommonTemplateInit[]): ModuleWithProviders<PblNgridModule> {
+  static withCommon(
+    components: CommonTemplateInit[],
+  ): ModuleWithProviders<PblNgridModule> {
     return {
       ngModule: PblNgridModule,
       providers: provideCommon(components),
     };
   }
 
-  static loadCommonTemplates<T>(ngRef: NgModuleRef<any>,
-                                component: Type<T>,
-                                options?: {
-                                 /** When set will use it as first registry in the DI tree */
-                                 registry?: PblNgridRegistryService;
-                                 /** When set will destroy the component when the module is destroyed. */
-                                 destroy?: boolean;
-                                }): ComponentRef<T> {
+  static loadCommonTemplates<T>(
+    ngRef: NgModuleRef<any>,
+    component: Type<T>,
+    options?: {
+      /** When set will use it as first registry in the DI tree */
+      registry?: PblNgridRegistryService;
+      /** When set will destroy the component when the module is destroyed. */
+      destroy?: boolean;
+    },
+  ): ComponentRef<T> {
     let injector: Injector = ngRef.injector;
     const { registry, destroy } = options || ({} as any);
 
     if (registry) {
       injector = Injector.create({
-        providers: [ { provide: PblNgridRegistryService, useValue: registry } ],
-        parent: ngRef.injector
+        providers: [{ provide: PblNgridRegistryService, useValue: registry }],
+        parent: ngRef.injector,
       });
     }
 
-    const cmpRef = createComponent(component, { environmentInjector: injector.get(EnvironmentInjector) });
+    const cmpRef = createComponent(component, {
+      environmentInjector: injector.get(EnvironmentInjector),
+    });
     cmpRef.changeDetectorRef.detectChanges();
     if (destroy) {
-      ngRef.onDestroy( () => {
+      ngRef.onDestroy(() => {
         try {
           cmpRef.destroy();
-        } catch( err) {}
+        } catch (err) {}
       });
     }
 

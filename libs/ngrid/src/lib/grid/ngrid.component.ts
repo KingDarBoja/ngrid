@@ -1,5 +1,15 @@
 import { asapScheduler, animationFrameScheduler } from 'rxjs';
-import { filter, take, tap, observeOn, switchMap, map, mapTo, startWith, pairwise } from 'rxjs/operators';
+import {
+  filter,
+  take,
+  tap,
+  observeOn,
+  switchMap,
+  map,
+  mapTo,
+  startWith,
+  pairwise,
+} from 'rxjs/operators';
 import {
   AfterViewInit,
   Component,
@@ -20,50 +30,92 @@ import {
   ViewContainerRef,
   EmbeddedViewRef,
   NgZone,
-  isDevMode, forwardRef, Attribute, Optional,
+  isDevMode,
+  forwardRef,
+  Attribute,
+  Optional,
 } from '@angular/core';
 
 import { Direction, Directionality } from '@angular/cdk/bidi';
-import { BooleanInput, coerceBooleanProperty, coerceNumberProperty, NumberInput } from '@angular/cdk/coercion';
-import { CdkHeaderRowDef, CdkFooterRowDef, CdkRowDef } from '@angular/cdk/table';
+import {
+  BooleanInput,
+  coerceBooleanProperty,
+  coerceNumberProperty,
+  NumberInput,
+} from '@angular/cdk/coercion';
+import {
+  CdkHeaderRowDef,
+  CdkFooterRowDef,
+  CdkRowDef,
+} from '@angular/cdk/table';
 
 import {
   PblNgridConfigService,
-
   PblNgridPaginatorKind,
-
-  DataSourcePredicate, DataSourceFilterToken, PblNgridSortDefinition, PblDataSource, DataSourceOf, createDS, PblNgridOnDataSourceEvent,
-
+  DataSourcePredicate,
+  DataSourceFilterToken,
+  PblNgridSortDefinition,
+  PblDataSource,
+  DataSourceOf,
+  createDS,
+  PblNgridOnDataSourceEvent,
   PblNgridColumnDefinitionSet,
   PblMetaRowDefinitions,
-
-  deprecatedWarning, unrx,
+  deprecatedWarning,
+  unrx,
 } from '@pebula/ngrid/core';
 
 import { PBL_NGRID_COMPONENT } from '../tokens';
-import { EXT_API_TOKEN, PblNgridExtensionApi, PblNgridInternalExtensionApi } from '../ext/grid-ext-api';
-import { PblNgridPluginController, PblNgridPluginContext } from '../ext/plugin-control';
+import {
+  EXT_API_TOKEN,
+  PblNgridExtensionApi,
+  PblNgridInternalExtensionApi,
+} from '../ext/grid-ext-api';
+import {
+  PblNgridPluginController,
+  PblNgridPluginContext,
+} from '../ext/plugin-control';
 import { PblNgridRegistryService } from './registry/registry.service';
 import { PblCdkTableComponent } from './pbl-cdk-table/pbl-cdk-table.component';
-import { PblColumn, PblNgridColumnSet, } from './column/model';
-import { PblColumnStore, ColumnApi, AutoSizeToFitOptions } from './column/management';
-import { PblNgridCellContext, PblNgridMetaCellContext, PblNgridContextApi, PblNgridRowContext, PblRowContext } from './context/index';
+import { PblColumn, PblNgridColumnSet } from './column/model';
+import {
+  PblColumnStore,
+  ColumnApi,
+  AutoSizeToFitOptions,
+} from './column/management';
+import {
+  PblNgridCellContext,
+  PblNgridMetaCellContext,
+  PblNgridContextApi,
+  PblNgridRowContext,
+} from './context/index';
 import { PblCdkVirtualScrollViewportComponent } from './features/virtual-scroll/virtual-scroll-viewport.component';
 import { PblNgridMetaRowService } from './meta-rows/meta-row.service';
 
 import { RowsApi } from './row';
 import { createApis } from './api-factory';
 
-export function internalApiFactory(grid: { _extApi: PblNgridExtensionApi; }) { return grid._extApi; }
-export function pluginControllerFactory(grid: { _plugin: PblNgridPluginContext; }) { return grid._plugin.controller; }
-export function metaRowServiceFactory(grid: { _extApi: PblNgridExtensionApi; }) { return grid._extApi.rowsApi.metaRowService; }
+export function internalApiFactory(grid: { _extApi: PblNgridExtensionApi }) {
+  return grid._extApi;
+}
+export function pluginControllerFactory(grid: {
+  _plugin: PblNgridPluginContext;
+}) {
+  return grid._plugin.controller;
+}
+export function metaRowServiceFactory(grid: { _extApi: PblNgridExtensionApi }) {
+  return grid._extApi.rowsApi.metaRowService;
+}
 
 declare module '../ext/types' {
   interface OnPropChangedSources {
     grid: PblNgridComponent;
   }
   interface OnPropChangedProperties {
-    grid: Pick<PblNgridComponent, 'showFooter' | 'showHeader' | 'rowClassUpdate' | 'rowClassUpdateFreq'>;
+    grid: Pick<
+      PblNgridComponent,
+      'showFooter' | 'showHeader' | 'rowClassUpdate' | 'rowClassUpdateFreq'
+    >;
   }
 }
 
@@ -87,21 +139,29 @@ declare module '../ext/types' {
       provide: PblNgridMetaRowService,
       useFactory: metaRowServiceFactory,
       deps: [forwardRef(() => PblNgridComponent)],
-    }
+    },
   ],
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
 })
-export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewInit, OnChanges, OnDestroy {
-
+export class PblNgridComponent<T = any>
+  implements AfterContentInit, AfterViewInit, OnChanges, OnDestroy
+{
   /**
    * Show/Hide the header row.
    * Default: true
    */
-  @Input() get showHeader(): boolean { return this._showHeader; };
+  @Input() get showHeader(): boolean {
+    return this._showHeader;
+  }
   set showHeader(value: boolean) {
-    this._extApi.notifyPropChanged(this, 'showHeader', this._showHeader, this._showHeader = coerceBooleanProperty(value));
+    this._extApi.notifyPropChanged(
+      this,
+      'showHeader',
+      this._showHeader,
+      (this._showHeader = coerceBooleanProperty(value)),
+    );
   }
   _showHeader: boolean;
 
@@ -109,16 +169,25 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
    * Show/Hide the footer row.
    * Default: false
    */
-  @Input() get showFooter(): boolean { return this._showFooter; };
+  @Input() get showFooter(): boolean {
+    return this._showFooter;
+  }
   set showFooter(value: boolean) {
-    this._extApi.notifyPropChanged(this, 'showFooter', this._showFooter, this._showFooter = coerceBooleanProperty(value));
+    this._extApi.notifyPropChanged(
+      this,
+      'showFooter',
+      this._showFooter,
+      (this._showFooter = coerceBooleanProperty(value)),
+    );
   }
   _showFooter: boolean;
 
   /**
    * When true, the filler is disabled.
    */
-  @Input() get noFiller(): boolean { return this._noFiller; };
+  @Input() get noFiller(): boolean {
+    return this._noFiller;
+  }
   set noFiller(value: boolean) {
     this._noFiller = coerceBooleanProperty(value);
   }
@@ -169,13 +238,21 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
     if (value instanceof PblDataSource) {
       this.setDataSource(value);
     } else {
-      this.setDataSource(createDS<T>().onTrigger(() => value || []).create());
+      this.setDataSource(
+        createDS<T>()
+          .onTrigger(() => value || [])
+          .create(),
+      );
     }
   }
 
-  get ds(): PblDataSource<T> { return this._dataSource; };
+  get ds(): PblDataSource<T> {
+    return this._dataSource;
+  }
 
-  @Input() get usePagination(): PblNgridPaginatorKind | false | '' { return this._pagination; }
+  @Input() get usePagination(): PblNgridPaginatorKind | false | '' {
+    return this._pagination;
+  }
   set usePagination(value: PblNgridPaginatorKind | false | '') {
     if ((value as any) === '') {
       value = 'pageNumber';
@@ -186,7 +263,9 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
     }
   }
 
-  @Input() get noCachePaginator(): boolean { return this._noCachePaginator; }
+  @Input() get noCachePaginator(): boolean {
+    return this._noCachePaginator;
+  }
   set noCachePaginator(value: boolean) {
     value = coerceBooleanProperty(value);
     if (this._noCachePaginator !== value) {
@@ -202,7 +281,11 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
    */
   @Input() columns: PblNgridColumnSet | PblNgridColumnDefinitionSet;
 
-  @Input() rowClassUpdate: undefined | ((context: PblNgridRowContext<T>) => (string | string[] | Set<string> | { [klass: string]: any }));
+  @Input() rowClassUpdate:
+    | undefined
+    | ((
+        context: PblNgridRowContext<T>,
+      ) => string | string[] | Set<string> | { [klass: string]: any });
   @Input() rowClassUpdateFreq: 'item' | 'ngDoCheck' | 'none' = 'item';
 
   rowFocus: 0 | '' = '';
@@ -252,7 +335,9 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
    * height assigned to the container, the container will render a scrollbar which results in the possibility of 2 scrollbars, 1 for the container and the seconds
    * for the data viewport, if it has enough data rows.
    */
-  @Input() get minDataViewHeight(): number { return this.minDataViewHeight; }
+  @Input() get minDataViewHeight(): number {
+    return this.minDataViewHeight;
+  }
   set minDataViewHeight(value: number) {
     value = coerceNumberProperty(value);
     if (this._minDataViewHeight !== value) {
@@ -265,29 +350,45 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
    */
   @Input() get fallbackMinHeight(): number {
     if (typeof ngDevMode === 'undefined' || ngDevMode) {
-      deprecatedWarning('PblNgridComponent.fallbackMinHeight', '4', 'PblNgridComponent.minDataViewHeight');
+      deprecatedWarning(
+        'PblNgridComponent.fallbackMinHeight',
+        '4',
+        'PblNgridComponent.minDataViewHeight',
+      );
     }
     return this._minDataViewHeight > 0 ? this._minDataViewHeight : undefined;
   }
   set fallbackMinHeight(value: number) {
     if (typeof ngDevMode === 'undefined' || ngDevMode) {
-      deprecatedWarning('PblNgridComponent.fallbackMinHeight', '4', 'PblNgridComponent.minDataViewHeight');
+      deprecatedWarning(
+        'PblNgridComponent.fallbackMinHeight',
+        '4',
+        'PblNgridComponent.minDataViewHeight',
+      );
     }
     this.minDataViewHeight = value;
   }
 
-  get dir(): Direction { return this._dir };
+  get dir(): Direction {
+    return this._dir;
+  }
 
   private _dir: Direction = 'ltr';
   private _minDataViewHeight = 0;
   private _dataSource: PblDataSource<T>;
 
-  @ViewChild('beforeTable', { read: ViewContainerRef, static: true }) _vcRefBeforeTable: ViewContainerRef;
-  @ViewChild('beforeContent', { read: ViewContainerRef, static: true }) _vcRefBeforeContent: ViewContainerRef;
-  @ViewChild('afterContent', { read: ViewContainerRef, static: true }) _vcRefAfterContent: ViewContainerRef;
-  @ViewChild('fbTableCell', { read: TemplateRef, static: true }) _fbTableCell: TemplateRef<PblNgridCellContext<T>>;
-  @ViewChild('fbHeaderCell', { read: TemplateRef, static: true }) _fbHeaderCell: TemplateRef<PblNgridMetaCellContext<T>>;
-  @ViewChild('fbFooterCell', { read: TemplateRef, static: true }) _fbFooterCell: TemplateRef<PblNgridMetaCellContext<T>>;
+  @ViewChild('beforeTable', { read: ViewContainerRef, static: true })
+  _vcRefBeforeTable: ViewContainerRef;
+  @ViewChild('beforeContent', { read: ViewContainerRef, static: true })
+  _vcRefBeforeContent: ViewContainerRef;
+  @ViewChild('afterContent', { read: ViewContainerRef, static: true })
+  _vcRefAfterContent: ViewContainerRef;
+  @ViewChild('fbTableCell', { read: TemplateRef, static: true })
+  _fbTableCell: TemplateRef<PblNgridCellContext<T>>;
+  @ViewChild('fbHeaderCell', { read: TemplateRef, static: true })
+  _fbHeaderCell: TemplateRef<PblNgridMetaCellContext<T>>;
+  @ViewChild('fbFooterCell', { read: TemplateRef, static: true })
+  _fbFooterCell: TemplateRef<PblNgridMetaCellContext<T>>;
   @ViewChild(CdkRowDef, { static: true }) _tableRowDef: CdkRowDef<T>;
   @ViewChildren(CdkHeaderRowDef) _headerRowDefs: QueryList<CdkHeaderRowDef>;
   @ViewChildren(CdkFooterRowDef) _footerRowDefs: QueryList<CdkFooterRowDef>;
@@ -295,28 +396,43 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
   /**
    * When true, the virtual paging feature is enabled because the virtual content size exceed the supported height of the browser so paging is enable.
    */
-  get virtualPagingActive() { return this.viewport.virtualPagingActive; }
+  get virtualPagingActive() {
+    return this.viewport.virtualPagingActive;
+  }
 
-  get metaHeaderRows() { return this._store.metaHeaderRows; }
-  get metaFooterRows() { return this._store.metaFooterRows; }
-  get metaColumns(): PblColumnStore['metaColumns'] { return this._store.metaColumns; }
-  get columnRowDef(): { header: PblMetaRowDefinitions; footer: PblMetaRowDefinitions; } {
+  get metaHeaderRows() {
+    return this._store.metaHeaderRows;
+  }
+  get metaFooterRows() {
+    return this._store.metaFooterRows;
+  }
+  get metaColumns(): PblColumnStore['metaColumns'] {
+    return this._store.metaColumns;
+  }
+  get columnRowDef(): {
+    header: PblMetaRowDefinitions;
+    footer: PblMetaRowDefinitions;
+  } {
     return {
       header: this._store.headerColumnDef,
-      footer: this._store.footerColumnDef
+      footer: this._store.footerColumnDef,
     };
   }
 
   /**
    * True when the component is initialized (after AfterViewInit)
    */
-  readonly isInit: boolean;
+  isInit: boolean;
   readonly columnApi: ColumnApi<T>;
   readonly rowsApi: RowsApi<T>;
   readonly contextApi: PblNgridContextApi<T>;
 
-  get viewport() { return this._viewport; }
-  get innerTableMinWidth() { return this._cdkTable?.minWidth }
+  get viewport() {
+    return this._viewport;
+  }
+  get innerTableMinWidth() {
+    return this._cdkTable?.minWidth;
+  }
 
   private _store: PblColumnStore;
   private _pagination: PblNgridPaginatorKind | false;
@@ -326,7 +442,8 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
   private _cdkTable: PblCdkTableComponent<T>;
   private _viewport: PblCdkVirtualScrollViewportComponent;
 
-  constructor(injector: Injector,
+  constructor(
+    injector: Injector,
     vcRef: ViewContainerRef,
     private elRef: ElementRef<HTMLElement>,
     private ngZone: NgZone,
@@ -336,15 +453,22 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
     /** @deprecated Will be removed in v5 */
     public registry: PblNgridRegistryService,
     @Attribute('id') public readonly id: string,
-    @Optional() dir?: Directionality) {
-    this._extApi = createApis(this, { config, registry, ngZone, injector, vcRef, elRef, cdRef: cdr, dir });
+    @Optional() dir?: Directionality,
+  ) {
+    this._extApi = createApis(this, {
+      config,
+      registry,
+      ngZone,
+      injector,
+      vcRef,
+      elRef,
+      cdRef: cdr,
+      dir,
+    });
 
     dir?.change
-      .pipe(
-        unrx(this, 'dir'),
-        startWith(dir.value)
-      )
-      .subscribe(value => this._dir = value);
+      .pipe(unrx(this, 'dir'), startWith(dir.value))
+      .subscribe((value) => (this._dir = value));
 
     const gridConfig = config.get('table');
     this.showHeader = gridConfig.showHeader;
@@ -375,18 +499,15 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
 
     this._extApi.logicaps.pagination();
 
-    this.contextApi.focusChanged
-      .subscribe(event => {
-        if (event.curr) {
-          this.rowsApi
-            .findDataRowByIdentity(event.curr.rowIdent)
-            ?.getCellById(this.columnApi.columnIds[event.curr.colIndex])
-            ?.focus();
-        }
-      });
-
+    this.contextApi.focusChanged.subscribe((event) => {
+      if (event.curr) {
+        this.rowsApi
+          .findDataRowByIdentity(event.curr.rowIdent)
+          ?.getCellById(this.columnApi.columnIds[event.curr.colIndex])
+          ?.focus();
+      }
+    });
   }
-
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.focusMode) {
@@ -415,7 +536,11 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
     };
 
     let p: Promise<void>;
-    this._plugin.emitEvent({ source: 'grid', kind: 'onDestroy', wait: (_p: Promise<void>) => p = _p });
+    this._plugin.emitEvent({
+      source: 'grid',
+      kind: 'onDestroy',
+      wait: (_p: Promise<void>) => (p = _p),
+    });
     if (p) {
       p.then(destroy).catch(destroy);
     } else {
@@ -445,8 +570,16 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
    * @param skipUpdate When true will not update the datasource, use this when the data comes sorted and you want to sync the definitions with the current data set.
    * default to false.
    */
-  setSort(columnOrAlias: PblColumn | string, sort: PblNgridSortDefinition, skipUpdate?: boolean): void;
-  setSort(columnOrAlias?: PblColumn | string | boolean, sort?: PblNgridSortDefinition, skipUpdate = false): void {
+  setSort(
+    columnOrAlias: PblColumn | string,
+    sort: PblNgridSortDefinition,
+    skipUpdate?: boolean,
+  ): void;
+  setSort(
+    columnOrAlias?: PblColumn | string | boolean,
+    sort?: PblNgridSortDefinition,
+    skipUpdate = false,
+  ): void {
     if (!columnOrAlias || typeof columnOrAlias === 'boolean') {
       this.ds.setSort(!!columnOrAlias);
       return;
@@ -454,7 +587,9 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
 
     let column: PblColumn;
     if (typeof columnOrAlias === 'string') {
-      column = this._store.visibleColumns.find(c => c.alias ? c.alias === columnOrAlias : (c.sort && c.id === columnOrAlias));
+      column = this._store.visibleColumns.find((c) =>
+        c.alias ? c.alias === columnOrAlias : c.sort && c.id === columnOrAlias,
+      );
       if (!column && isDevMode()) {
         console.warn(`Could not find column with alias "${columnOrAlias}".`);
         return;
@@ -474,7 +609,7 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
   /**
    * Set the filter definition for the current data set using a function predicate.
    *
-  * This method is a proxy to `PblDataSource.setFilter` with the added sugar of providing column by string that match the `id` property.
+   * This method is a proxy to `PblDataSource.setFilter` with the added sugar of providing column by string that match the `id` property.
    * For more information see `PblDataSource.setFilter`
    */
   setFilter(value: DataSourcePredicate, columns?: PblColumn[] | string[]): void;
@@ -485,15 +620,22 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
    * For more information see `PblDataSource.setFilter`
    */
   setFilter(value: any, columns: PblColumn[] | string[]): void;
-  setFilter(value?: DataSourceFilterToken, columns?: PblColumn[] | string[]): void {
+  setFilter(
+    value?: DataSourceFilterToken,
+    columns?: PblColumn[] | string[],
+  ): void {
     if (arguments.length > 0) {
       let columnInstances: PblColumn[];
       if (Array.isArray(columns) && typeof columns[0] === 'string') {
         columnInstances = [];
         for (const colId of columns) {
-          const column = this._store.visibleColumns.find(c => c.alias ? c.alias === colId : (c.id === colId));
+          const column = this._store.visibleColumns.find((c) =>
+            c.alias ? c.alias === colId : c.id === colId,
+          );
           if (!column && isDevMode()) {
-            console.warn(`Could not find column with alias ${colId} "${colId}".`);
+            console.warn(
+              `Could not find column with alias ${colId} "${colId}".`,
+            );
             return;
           }
           columnInstances.push(column);
@@ -530,7 +672,7 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
         source: 'ds',
         kind: 'onDataSource',
         prev,
-        curr: value
+        curr: value,
       } as PblNgridOnDataSourceEvent);
 
       // clear the context, new datasource
@@ -538,34 +680,45 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
 
       if (value) {
         if (isDevMode()) {
-          value.onError.pipe(unrx(this, value)).subscribe(console.error.bind(console));
+          value.onError
+            .pipe(unrx(this, value))
+            .subscribe(console.error.bind(console));
         }
 
         // We register to this event because it fires before the entire data-changing process starts.
         // This is required because `onRenderDataChanging` is fired async, just before the data is emitted.
         // Its not enough to clear the context when `setDataSource` is called, we also need to handle `refresh` calls which will not
         // trigger this method.
-        value.onSourceChanging
-          .pipe(unrx(this, value))
-          .subscribe(() => {
-            if (this.config.get('table').clearContextOnSourceChanging) {
-              this._extApi.contextApi.clear();
-            }
-          });
+        value.onSourceChanging.pipe(unrx(this, value)).subscribe(() => {
+          if (this.config.get('table').clearContextOnSourceChanging) {
+            this._extApi.contextApi.clear();
+          }
+        });
 
         // Run CD, scheduled as a micro-task, after each rendering
         value.onRenderDataChanging
           .pipe(
-            filter(({ event }) => !event.isInitial && (event.pagination.changed || event.sort.changed || event.filter.changed)),
+            filter(
+              ({ event }) =>
+                !event.isInitial &&
+                (event.pagination.changed ||
+                  event.sort.changed ||
+                  event.filter.changed),
+            ),
             // Context between the operations are not supported at the moment
             // Event for client side operations...
             // TODO: can we remove this? we clear the context with `onSourceChanging`
             tap(() => !this._store.primary && this._extApi.contextApi.clear()),
-            switchMap(() => value.onRenderedDataChanged.pipe(take(1), mapTo(this.ds.renderLength))),
+            switchMap(() =>
+              value.onRenderedDataChanged.pipe(
+                take(1),
+                mapTo(this.ds.renderLength),
+              ),
+            ),
             observeOn(asapScheduler),
-            unrx(this, value)
+            unrx(this, value),
           )
-          .subscribe(previousRenderLength => {
+          .subscribe((previousRenderLength) => {
             // If the number of rendered items has changed the grid will update the data and run CD on it.
             // so we only update the rows.
             if (previousRenderLength === this.ds.renderLength) {
@@ -585,22 +738,31 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
             pairwise(),
             tap(([prev, curr]) => {
               const noDataShowing = !!this._extApi.logicaps.noData.viewActive;
-              if ((curr > 0 && noDataShowing) || (curr === 0 && !noDataShowing)) {
+              if (
+                (curr > 0 && noDataShowing) ||
+                (curr === 0 && !noDataShowing)
+              ) {
                 this._extApi.logicaps.noData();
               }
             }),
             observeOn(animationFrameScheduler), // ww want to give the browser time to remove/add rows
-            unrx(this, value)
+            unrx(this, value),
           )
           .subscribe(() => {
             const el = this.viewport.element;
             if (this.ds.renderLength > 0 && this._minDataViewHeight) {
               let h: number;
               if (this._minDataViewHeight > 0) {
-                h = Math.min(this._minDataViewHeight, this.viewport.measureRenderedContentSize());
+                h = Math.min(
+                  this._minDataViewHeight,
+                  this.viewport.measureRenderedContentSize(),
+                );
               } else {
                 const rowHeight = this.findInitialRowHeight();
-                const rowCount = Math.min(this.ds.renderLength, this._minDataViewHeight * -1);
+                const rowCount = Math.min(
+                  this.ds.renderLength,
+                  this._minDataViewHeight * -1,
+                );
                 h = rowHeight * rowCount;
               }
               el.style.minHeight = h + 'px';
@@ -644,7 +806,12 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
   /**
    * Create an embedded view before or after the user projected content.
    */
-  createView<C>(location: 'beforeTable' | 'beforeContent' | 'afterContent', templateRef: TemplateRef<C>, context?: C, index?: number): EmbeddedViewRef<C> {
+  createView<C>(
+    location: 'beforeTable' | 'beforeContent' | 'afterContent',
+    templateRef: TemplateRef<C>,
+    context?: C,
+    index?: number,
+  ): EmbeddedViewRef<C> {
     const vcRef = this.getInternalVcRef(location);
     const view = vcRef.createEmbeddedView(templateRef, context, index);
     view.detectChanges();
@@ -657,7 +824,10 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
    * @param location - The location, if not set defaults to `before`
    * @returns true when a view was removed, false when not. (did not exist in the view container for the provided location)
    */
-  removeView(view: EmbeddedViewRef<any>, location: 'beforeTable' | 'beforeContent' | 'afterContent'): boolean {
+  removeView(
+    view: EmbeddedViewRef<any>,
+    location: 'beforeTable' | 'beforeContent' | 'afterContent',
+  ): boolean {
     const vcRef = this.getInternalVcRef(location);
     const idx = vcRef.indexOf(view);
     if (idx === -1) {
@@ -677,7 +847,10 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
 
     // calculate auto-size on the width without scroll bar and take box model gaps into account
     // TODO: if no scroll bar exists the calc will not include it, next if more rows are added a scroll bar will appear...
-    this.columnApi.autoSizeToFit(outerWidth - (outerWidth - innerWidth), options);
+    this.columnApi.autoSizeToFit(
+      outerWidth - (outerWidth - innerWidth),
+      options,
+    );
   }
 
   findInitialRowHeight(): number {
@@ -687,10 +860,11 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
       const height = getComputedStyle(row.elementRef.nativeElement).height;
       return parseInt(height, 10);
     } else if (this._vcRefBeforeContent) {
-      rowElement = this._vcRefBeforeContent.length > 0
-        ? (this._vcRefBeforeContent.get(0) as EmbeddedViewRef<any>).rootNodes[0]
-        : this._vcRefBeforeContent.element.nativeElement
-        ;
+      rowElement =
+        this._vcRefBeforeContent.length > 0
+          ? (this._vcRefBeforeContent.get(0) as EmbeddedViewRef<any>)
+              .rootNodes[0]
+          : this._vcRefBeforeContent.element.nativeElement;
       rowElement = rowElement.previousElementSibling as HTMLElement;
       rowElement.style.display = '';
       const height = getComputedStyle(rowElement).height;
@@ -711,11 +885,14 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
     }
   }
 
-  private getInternalVcRef(location: 'beforeTable' | 'beforeContent' | 'afterContent'): ViewContainerRef {
+  private getInternalVcRef(
+    location: 'beforeTable' | 'beforeContent' | 'afterContent',
+  ): ViewContainerRef {
     return location === 'beforeTable'
       ? this._vcRefBeforeTable
-      : location === 'beforeContent' ? this._vcRefBeforeContent : this._vcRefAfterContent
-      ;
+      : location === 'beforeContent'
+        ? this._vcRefBeforeContent
+        : this._vcRefAfterContent;
   }
 
   private resetHeaderRowDefs(): void {
