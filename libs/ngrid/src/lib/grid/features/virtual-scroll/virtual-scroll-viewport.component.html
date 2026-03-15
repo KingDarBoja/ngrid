@@ -4,7 +4,12 @@
   Wrap the rendered content in an element that will be used to offset it based on the scroll
   position.
 -->
-<div #contentWrapper [class.cdk-virtual-scroll-content-wrapper]="enabled" style="width: 100%" [style.minWidth.px]="_minWidth$ | async">
+<div
+  #contentWrapper
+  [class.cdk-virtual-scroll-content-wrapper]="enabled"
+  style="width: 100%"
+  [style.minWidth.px]="_minWidth$ | async"
+>
   <ng-content></ng-content>
 </div>
 
@@ -12,10 +17,19 @@
   Spacer used to force the scrolling container to the correct size for the *total* number of items
   so that the scrollbar captures the size of the entire data set.
 -->
-<div *ngIf="enabled" class="cdk-virtual-scroll-spacer"
-     [style.width]="_totalContentWidth" [style.height]="_totalContentHeight"></div>
-<div *ngIf="pblFillerHeight && enabled"
+@if (enabled) {
+  <div
+    class="cdk-virtual-scroll-spacer"
+    [style.width]="_totalContentWidth()"
+    [style.height]="_totalContentHeight()"
+  ></div>
+}
+
+@if (pblFillerHeight && enabled) {
+  <div
     class="pbl-ngrid-space-fill"
     [style.minWidth.px]="_minWidth$ | async"
     [style.top.px]="ngeRenderedContentSize"
-    [style.height]="pblFillerHeight"></div>
+    [style.height]="pblFillerHeight"
+  ></div>
+}

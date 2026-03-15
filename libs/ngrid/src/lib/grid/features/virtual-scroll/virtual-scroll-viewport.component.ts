@@ -33,10 +33,16 @@ import {
 import { PblNgridConfigService, unrx } from '@pebula/ngrid/core';
 
 import { _PblNgridComponent } from '../../../tokens';
-import { PblNgridBaseVirtualScrollDirective } from './strategies/base-v-scroll.directive'
+import { PblNgridBaseVirtualScrollDirective } from './strategies/base-v-scroll.directive';
 import { PblNgridVirtualScrollStrategy } from './strategies/types';
-import { NgeVirtualTableRowInfo, PblVirtualScrollForOf } from './virtual-scroll-for-of';
-import { EXT_API_TOKEN, PblNgridInternalExtensionApi } from '../../../ext/grid-ext-api';
+import {
+  NgeVirtualTableRowInfo,
+  PblVirtualScrollForOf,
+} from './virtual-scroll-for-of';
+import {
+  EXT_API_TOKEN,
+  PblNgridInternalExtensionApi,
+} from '../../../ext/grid-ext-api';
 import { createScrollWatcherFn } from './scroll-logic/virtual-scroll-watcher';
 import { PblNgridAutoSizeVirtualScrollStrategy } from './strategies/cdk-wrappers/auto-size';
 import { RowIntersectionTracker } from './row-intersection';
@@ -48,24 +54,29 @@ declare module '@pebula/ngrid/core' {
     virtualScroll?: {
       wheelMode?: PblNgridBaseVirtualScrollDirective['wheelMode'];
       defaultStrategy?(): PblNgridVirtualScrollStrategy;
-    }
+    };
   }
 }
 
-export const DISABLE_INTERSECTION_OBSERVABLE = new InjectionToken<boolean>('When found in the DI tree and resolves to true, disable the use of IntersectionObserver');
-const APP_DEFAULT_VIRTUAL_SCROLL_STRATEGY = () => new PblNgridAutoSizeVirtualScrollStrategy(100, 200);
+export const DISABLE_INTERSECTION_OBSERVABLE = new InjectionToken<boolean>(
+  'When found in the DI tree and resolves to true, disable the use of IntersectionObserver',
+);
+const APP_DEFAULT_VIRTUAL_SCROLL_STRATEGY = () =>
+  new PblNgridAutoSizeVirtualScrollStrategy(100, 200);
 
 @Component({
   selector: 'pbl-cdk-virtual-scroll-viewport',
   templateUrl: 'virtual-scroll-viewport.component.html',
-  styleUrls: [ 'virtual-scroll-viewport.component.scss' ],
+  styleUrls: ['virtual-scroll-viewport.component.scss'],
   host: {
     class: 'cdk-virtual-scroll-viewport',
     '[class.cdk-virtual-scroll-disabled]': '!enabled',
-    '[class.cdk-virtual-scroll-orientation-horizontal]': 'orientation === "horizontal"',
-    '[class.cdk-virtual-scroll-orientation-vertical]': 'orientation === "vertical"'
+    '[class.cdk-virtual-scroll-orientation-horizontal]':
+      'orientation === "horizontal"',
+    '[class.cdk-virtual-scroll-orientation-vertical]':
+      'orientation === "vertical"',
   },
-  providers:[
+  providers: [
     {
       provide: VIRTUAL_SCROLL_STRATEGY,
       useFactory: () => {
@@ -73,20 +84,25 @@ const APP_DEFAULT_VIRTUAL_SCROLL_STRATEGY = () => new PblNgridAutoSizeVirtualScr
         // Add the required itemSize property
         (strategy as any)._itemSize = 48;
         return strategy;
-      }
-    }
+      },
+    },
   ],
   standalone: false,
   encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewport implements OnInit, AfterViewInit, OnDestroy {
-
-  get isScrolling(): boolean { return this._isScrolling; }
+export class PblCdkVirtualScrollViewportComponent
+  extends CdkVirtualScrollViewport
+  implements OnInit, AfterViewInit, OnDestroy
+{
+  get isScrolling(): boolean {
+    return this._isScrolling;
+  }
   readonly enabled: boolean;
 
   /** @internal */
-  @ViewChild('innerBoxHelper', { static: true }) _innerBoxHelper: ElementRef<HTMLElement>;
+  @ViewChild('innerBoxHelper', { static: true })
+  _innerBoxHelper: ElementRef<HTMLElement>;
 
   /**
    * Emits the offset (in pixels) of the rendered content every time it changes.
@@ -111,7 +127,7 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
    *
    * NOTE: This event runs outside the angular zone.
    */
-  @Output() scrolling = new EventEmitter< -1 | 0 | 1 >();
+  @Output() scrolling = new EventEmitter<-1 | 0 | 1>();
 
   /**
    * Emits an estimation of the current frame rate while scrolling, in a 500ms interval.
@@ -149,7 +165,12 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
   pblFillerHeight: string;
 
   get wheelMode(): PblNgridBaseVirtualScrollDirective['wheelMode'] {
-    return (this.pblScrollStrategy as PblNgridBaseVirtualScrollDirective).wheelMode || this.wheelModeDefault || 'passive';
+    return (
+      (this.pblScrollStrategy as PblNgridBaseVirtualScrollDirective)
+        .wheelMode ||
+      this.wheelModeDefault ||
+      'passive'
+    );
   }
 
   /**
@@ -158,9 +179,16 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
    * I.E 2 subsequent measurements will always return the same value, the next measurement will only take place after
    * the next animation frame (using `requestAnimationFrame` API)
    */
-  get getBoundingClientRects(): { clientRect: DOMRect; innerWidth: number; innerHeight: number; scrollBarWidth: number; scrollBarHeight: number; } {
+  get getBoundingClientRects(): {
+    clientRect: DOMRect;
+    innerWidth: number;
+    innerHeight: number;
+    scrollBarWidth: number;
+    scrollBarHeight: number;
+  } {
     if (!this._boundingClientRects) {
-      const innerBox = this._innerBoxHelper.nativeElement.getBoundingClientRect();
+      const innerBox =
+        this._innerBoxHelper.nativeElement.getBoundingClientRect();
       const clientRect = this.element.getBoundingClientRect();
       this._boundingClientRects = {
         clientRect,
@@ -168,11 +196,16 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
         innerHeight: innerBox.height,
         scrollBarWidth: clientRect.width - innerBox.width,
         scrollBarHeight: clientRect.height - innerBox.height,
-      }
+      };
 
-      const resetCurrentBox = () => this._boundingClientRects = undefined;
+      const resetCurrentBox = () => (this._boundingClientRects = undefined);
       if (this._isScrolling) {
-        this.scrolling.pipe(filter(scrolling => scrolling === 0), take(1)).subscribe(resetCurrentBox);
+        this.scrolling
+          .pipe(
+            filter((scrolling) => scrolling === 0),
+            take(1),
+          )
+          .subscribe(resetCurrentBox);
       } else {
         requestAnimationFrame(resetCurrentBox);
       }
@@ -204,7 +237,9 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
   /**
    * When true, the virtual paging feature is enabled because the virtual content size exceed the supported height of the browser so paging is enable.
    */
-  get virtualPagingActive() { return this.heightPaging?.active ?? false; }
+  get virtualPagingActive() {
+    return this.heightPaging?.active ?? false;
+  }
 
   readonly intersection: RowIntersectionTracker;
   readonly element: HTMLElement;
@@ -215,48 +250,67 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
   private isCDPending: boolean;
   private _isScrolling = false;
 
-  private wheelModeDefault:  PblNgridBaseVirtualScrollDirective['wheelMode'];
+  private wheelModeDefault: PblNgridBaseVirtualScrollDirective['wheelMode'];
   private grid: _PblNgridComponent<any>;
   private forOf?: PblVirtualScrollForOf<any>;
   private _boundingClientRects: PblCdkVirtualScrollViewportComponent['getBoundingClientRects'];
   private heightPaging: VirtualScrollHightPaging;
 
-  constructor(elRef: ElementRef<HTMLElement>,
-              private cdr: ChangeDetectorRef,
-              ngZone: NgZone,
-              config: PblNgridConfigService,
-              @Optional() @Inject(VIRTUAL_SCROLL_STRATEGY) public pblScrollStrategy: PblNgridVirtualScrollStrategy,
-              @Optional() dir: Directionality,
-              scrollDispatcher: ScrollDispatcher,
-              viewportRuler: ViewportRuler,
-              @Inject(EXT_API_TOKEN) private extApi: PblNgridInternalExtensionApi,
-              @Optional() @Inject(DISABLE_INTERSECTION_OBSERVABLE) disableIntersectionObserver?: boolean,
-              @Optional() @Inject(VIRTUAL_SCROLLABLE) scrollable?: CdkVirtualScrollable,) {
-    super(elRef,
-          cdr,
-          ngZone,
-            // TODO: Replace with `PblNgridDynamicVirtualScrollStrategy` in v4
-          pblScrollStrategy = resolveScrollStrategy(config, pblScrollStrategy, APP_DEFAULT_VIRTUAL_SCROLL_STRATEGY),
-          dir,
-          scrollDispatcher,
-          viewportRuler,
-          scrollable);
+  constructor(
+    elRef: ElementRef<HTMLElement>,
+    private cdr: ChangeDetectorRef,
+    ngZone: NgZone,
+    config: PblNgridConfigService,
+    @Optional()
+    @Inject(VIRTUAL_SCROLL_STRATEGY)
+    public pblScrollStrategy: PblNgridVirtualScrollStrategy,
+    @Optional() dir: Directionality,
+    scrollDispatcher: ScrollDispatcher,
+    viewportRuler: ViewportRuler,
+    @Inject(EXT_API_TOKEN) private extApi: PblNgridInternalExtensionApi,
+    @Optional()
+    @Inject(DISABLE_INTERSECTION_OBSERVABLE)
+    disableIntersectionObserver?: boolean,
+    @Optional() @Inject(VIRTUAL_SCROLLABLE) scrollable?: CdkVirtualScrollable,
+  ) {
+    super(
+      elRef,
+      cdr,
+      ngZone,
+      // TODO: Replace with `PblNgridDynamicVirtualScrollStrategy` in v4
+      (pblScrollStrategy = resolveScrollStrategy(
+        config,
+        pblScrollStrategy,
+        APP_DEFAULT_VIRTUAL_SCROLL_STRATEGY,
+      )),
+      dir,
+      scrollDispatcher,
+      viewportRuler,
+      scrollable,
+    );
     this.element = elRef.nativeElement;
     this.grid = extApi.grid;
 
     if (config.has('virtualScroll')) {
       this.wheelModeDefault = config.get('virtualScroll').wheelMode;
     }
-    config.onUpdate('virtualScroll').pipe(unrx(this)).subscribe( change => this.wheelModeDefault = change.curr.wheelMode);
+    config
+      .onUpdate('virtualScroll')
+      .pipe(unrx(this))
+      .subscribe((change) => (this.wheelModeDefault = change.curr.wheelMode));
 
-    this.enabled = pblScrollStrategy.type && pblScrollStrategy.type !== 'vScrollNone';
+    this.enabled =
+      pblScrollStrategy.type && pblScrollStrategy.type !== 'vScrollNone';
 
     extApi.setViewport(this);
     this.offsetChange = this.offsetChange$.asObservable();
 
     this._minWidth$ = this.grid.columnApi.totalColumnWidthChange;
 
-    this.intersection = new RowIntersectionTracker(this.element, !!disableIntersectionObserver);
+    this.intersection = new RowIntersectionTracker(
+      this.element,
+      !!disableIntersectionObserver,
+    );
   }
 
   ngOnInit(): void {
@@ -269,7 +323,9 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
     super.ngOnInit();
 
     // Init the scrolling watcher which track scroll events an emits `scrolling` and `scrollFrameRate` events.
-    this.ngZone.runOutsideAngular( () => this.elementScrolled().subscribe(createScrollWatcherFn(this)) );
+    this.ngZone.runOutsideAngular(() =>
+      this.elementScrolled().subscribe(createScrollWatcherFn(this)),
+    );
   }
 
   ngAfterViewInit(): void {
@@ -286,26 +342,23 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
       }
 
       // `wheel` mode does not work well with the workaround to fix height limit, so we disable it when it's on
-      this.heightPaging.activeChanged
-        .subscribe( () => {
-          if (this.heightPaging.active) {
-            this.forOf.wheelControl.wheelUnListen();
-          } else {
-            this.forOf.wheelControl.wheelListen();
-          }
-        });
-    }
-
-    this.scrolling
-      .pipe(unrx(this))
-      .subscribe( isScrolling => {
-        this._isScrolling = !!isScrolling;
-        if (isScrolling) {
-          grid.addClass('pbl-ngrid-scrolling');
+      this.heightPaging.activeChanged.subscribe(() => {
+        if (this.heightPaging.active) {
+          this.forOf.wheelControl.wheelUnListen();
         } else {
-          grid.removeClass('pbl-ngrid-scrolling');
+          this.forOf.wheelControl.wheelListen();
         }
       });
+    }
+
+    this.scrolling.pipe(unrx(this)).subscribe((isScrolling) => {
+      this._isScrolling = !!isScrolling;
+      if (isScrolling) {
+        grid.addClass('pbl-ngrid-scrolling');
+      } else {
+        grid.removeClass('pbl-ngrid-scrolling');
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -321,17 +374,28 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
     this.pblScrollStrategy.onContentRendered();
   }
 
-  measureScrollOffset(from?: 'top' | 'left' | 'right' | 'bottom' | 'start' | 'end'): number {
+  measureScrollOffset(
+    from?: 'top' | 'left' | 'right' | 'bottom' | 'start' | 'end',
+  ): number {
     const scrollOffset = super.measureScrollOffset(from);
-    return (!from || from === 'top') && this.heightPaging ? this.heightPaging.transformScrollOffset(scrollOffset) : scrollOffset;
+    return (!from || from === 'top') && this.heightPaging
+      ? this.heightPaging.transformScrollOffset(scrollOffset)
+      : scrollOffset;
   }
 
   getOffsetToRenderedContentStart(): number | null {
     const renderedContentStart = super.getOffsetToRenderedContentStart();
-    return this.heightPaging?.transformOffsetToRenderedContentStart(renderedContentStart) ?? renderedContentStart;
+    return (
+      this.heightPaging?.transformOffsetToRenderedContentStart(
+        renderedContentStart,
+      ) ?? renderedContentStart
+    );
   }
 
-  setRenderedContentOffset(offset: number, to: 'to-start' | 'to-end' = 'to-start') {
+  setRenderedContentOffset(
+    offset: number,
+    to: 'to-start' | 'to-end' = 'to-start',
+  ) {
     if (this.heightPaging?.active) {
       offset = this.heightPaging.transformRenderedContentOffset(offset, to);
     }
@@ -342,11 +406,11 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
         if (!this.isCDPending) {
           this.isCDPending = true;
 
-          this.ngZone.runOutsideAngular(() => Promise.resolve()
-            .then( () => {
+          this.ngZone.runOutsideAngular(() =>
+            Promise.resolve().then(() => {
               this.isCDPending = false;
               this.offsetChange$.next(this.offset);
-            })
+            }),
           );
         }
       }
@@ -355,7 +419,10 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
 
   setTotalContentSize(size: number) {
     if (this.heightPaging?.shouldTransformTotalContentSize(size)) {
-      size = this.heightPaging.transformTotalContentSize(size, super.measureScrollOffset());
+      size = this.heightPaging.transformTotalContentSize(
+        size,
+        super.measureScrollOffset(),
+      );
     }
     super.setTotalContentSize(size);
 
@@ -365,21 +432,23 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
       this.updateFiller();
       // We must trigger a change detection cycle because the filler div element is updated through bindings
       this.cdr.markForCheck();
-    })
+    });
   }
 
   /** Measure the combined size of all of the rendered items. */
   measureRenderedContentSize(): number {
     let size = super.measureRenderedContentSize();
     if (this.orientation === 'vertical') {
-      size -= this.stickyRowHeaderContainer.offsetHeight + this.stickyRowFooterContainer.offsetHeight;
+      size -=
+        this.stickyRowHeaderContainer.offsetHeight +
+        this.stickyRowFooterContainer.offsetHeight;
 
       // Compensate for hz scroll bar, if exists, only in non virtual scroll mode.
       if (!this.enabled) {
         size += this.outerHeight - this.innerHeight;
       }
     }
-    return this.ngeRenderedContentSize = size;
+    return (this.ngeRenderedContentSize = size);
   }
 
   checkViewportSize() {
@@ -412,22 +481,30 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
 
     // Vertical handling.
     // We have vertical virtual scroll, so here we use the virtual scroll API to scroll into the target
-    if (elBox.top < containerBox.top) { // out from top
+    if (elBox.top < containerBox.top) {
+      // out from top
       const offset = elBox.top - containerBox.top;
       this.scrollToOffset(this.measureScrollOffset() + offset);
-    } else if (elBox.bottom > containerBox.bottom) { // out from bottom
-      const offset = elBox.bottom - (containerBox.bottom - this.getScrollBarThickness('horizontal'));
+    } else if (elBox.bottom > containerBox.bottom) {
+      // out from bottom
+      const offset =
+        elBox.bottom -
+        (containerBox.bottom - this.getScrollBarThickness('horizontal'));
       this.scrollToOffset(this.measureScrollOffset() + offset);
     }
 
     // Horizontal handling.
     // We DON'T have horizontal virtual scroll, so here we use the DOM API to scroll into the target
     // TODO: When implementing horizontal virtual scroll, refactor this as well.
-    if (elBox.left < containerBox.left) { // out from left
+    if (elBox.left < containerBox.left) {
+      // out from left
       const offset = elBox.left - containerBox.left;
       container.scroll(container.scrollLeft + offset, container.scrollTop);
-    } else if (elBox.right > containerBox.right) { // out from right
-      const offset = elBox.right - (containerBox.right - this.getScrollBarThickness('vertical'));
+    } else if (elBox.right > containerBox.right) {
+      // out from right
+      const offset =
+        elBox.right -
+        (containerBox.right - this.getScrollBarThickness('vertical'));
       container.scroll(container.scrollLeft + offset, container.scrollTop);
     }
   }
@@ -439,10 +516,10 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
 
   attach(forOf: CdkVirtualForOf<any> & NgeVirtualTableRowInfo) {
     super.attach(forOf);
-    const scrollStrategy = this.pblScrollStrategy instanceof PblNgridBaseVirtualScrollDirective
-      ? this.pblScrollStrategy._scrollStrategy
-      : this.pblScrollStrategy
-    ;
+    const scrollStrategy =
+      this.pblScrollStrategy instanceof PblNgridBaseVirtualScrollDirective
+        ? this.pblScrollStrategy._scrollStrategy
+        : this.pblScrollStrategy;
     if (scrollStrategy instanceof PblNgridAutoSizeVirtualScrollStrategy) {
       scrollStrategy.averager.setRowInfo(forOf);
     }
@@ -466,13 +543,12 @@ export class PblCdkVirtualScrollViewportComponent extends CdkVirtualScrollViewpo
     if (this.grid.noFiller) {
       this.pblFillerHeight = undefined;
     } else {
-      this.pblFillerHeight = this.getViewportSize() >= this.ngeRenderedContentSize ?
-        `calc(100% - ${this.ngeRenderedContentSize}px)`
-        : undefined
-      ;
+      this.pblFillerHeight =
+        this.getViewportSize() >= this.ngeRenderedContentSize
+          ? `calc(100% - ${this.ngeRenderedContentSize}px)`
+          : undefined;
     }
   }
-
 }
 
 declare global {
