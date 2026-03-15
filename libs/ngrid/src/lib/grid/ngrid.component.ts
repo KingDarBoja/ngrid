@@ -422,7 +422,7 @@ export class PblNgridComponent<T = any>
   /**
    * True when the component is initialized (after AfterViewInit)
    */
-  isInit: boolean;
+  readonly isInit: boolean;
   readonly columnApi: ColumnApi<T>;
   readonly rowsApi: RowsApi<T>;
   readonly contextApi: PblNgridContextApi<T>;
@@ -494,9 +494,7 @@ export class PblNgridComponent<T = any>
     this.invalidateColumns();
 
     Object.defineProperty(this, 'isInit', { value: true });
-    (this.isInit as PblNgridComponent['isInit']) = true;
     this._plugin.emitEvent({ source: 'grid', kind: 'onInit' });
-
     this._extApi.logicaps.pagination();
 
     this.contextApi.focusChanged.subscribe((event) => {
